@@ -8,7 +8,7 @@ Tools for applying the Dowker complex statistically
 Input: table with columns:
 * Observations (factor variable)
 * Features (factor variable)
-* Class (factor variable)
+* Class (factor variable, partially assigned)
 
 Output: new table:
 * Column of feature sets (one feature can appear multiple times)
@@ -24,6 +24,26 @@ Translate existing Python code to R.
 What R graph library (if any) should we use as a dependency?
 
 Graphics are optional
+
+# Workflows to be supported
+
+## Classification workflow
+
+Goal: Find the probability that a given observation will be assigned a given class
+
+Tool: Dowker probability formula, based upon Bayes' rule
+
+## Explanation workflow
+
+Goal: Determine the "interesting" feature patterns
+
+Tool: Inconsistent edges
+
+## Stretch: Sampling sufficiency test
+
+Goal: Split the observations into non-inconsistent subsets
+
+Tool: Robinson's "Dowker splitting" algorithm
 
 # Example use cases
 
