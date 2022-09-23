@@ -56,29 +56,34 @@ max_decreasing_decomp <- function(grph,fcn){
   
   # Initial setup
   i <- 1
-  minimal <- minimal_elements(grph, fcn) # Current minimal elements
+  grph_new <- grph
   fcn_remaining <- fcn # This will be the remaining portion of the function left to decompose
   fcn_new <- fcn %>% 
     mutate(decomp='original')
   
-  # Compute the maximum decreasing function bounded by what remains
-  fcn_new <- fcn_new %>% # TODO: remove minimal elements
-    bind_rows(max_decreasing(grph,fcn_remaining) %>% mutate(decomp=as.character(i)))
+  while(any(fcn_remaining$value>0)){
+    # Determine the remaining graph minimal elements
+    minimal <- minimal_elements(grph_new, fcn_remaining)
+    
+    # Compute the maximum decreasing function bounded by what remains
+    fcn_new <- fcn_new %>% 
+      bind_rows(max_decreasing(grph_new,fcn_remaining) %>% mutate(decomp=as.character(i)))
   
-  # Determine the amount of function left to decompose after this is complete
-  fcn_remaining <- fcn_new %>% 
-    filter(decomp!='original') %>% 
-    group_by(node) %>% 
-    summarize(value=sum(value)) %>%
-    left_join(fcn_remaining,by=c(node='node')) %>%
-    mutate(value=value.y-value.x) %>%
-    select(node,value)
+    # Determine the amount of function left to decompose after this is complete
+    fcn_remaining <- fcn_new %>% 
+      filter(decomp!='original') %>% 
+      group_by(node) %>% 
+      summarize(value=sum(value)) %>%
+      left_join(fcn,by=c(node='node')) %>%
+      mutate(value=value.y-value.x) %>%
+      select(node,value)
   
-  print(fcn_remaining)
-  
-  # TODO: Determine the new set of minimal elements
-  
-  # TODO: Iteration clause
+    # Prune graph by removing edges from minimal elements
+    grph_new <- grph_new %>% 
+      anti_join(minimal, by=c(source='node'))
+    
+    i <- i+1
+  }
 
   return(fcn_new)
 }
@@ -110,6 +115,5 @@ grph %>%
          test2=(f2.x>=f2.y),
          test3=(f3.x>=f3.y))
 
-# Produce the first maximum monotonic decreasing function
-max_decreasing(grph,fcn)
-
+# Decompose function
+max_decreasing_decomp(grph,fcn) %>% pivot_wider(node,names_from=decomp,values_from=value)
