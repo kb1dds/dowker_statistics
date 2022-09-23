@@ -11,7 +11,8 @@ minimal_elements <- function(grph,vertices){
     anti_join(grph,by=c(node='destination'))
 }
 
-# Compute the maximum monotonic (non-strictly) decreasing function on a graph.
+# Compute the maximum monotonic (non-strictly) decreasing function on a graph
+# which is bounded above by an arbitrary function.
 # The function is defined on vertices in a table `fcn` with a `nodes` column
 # and `value` column.
 # Edges of the graph are defined by a table `grph` 
@@ -40,6 +41,45 @@ max_decreasing <- function(grph,fcn){
     
     fcn_new <- fcn_new %>% bind_rows(current_stage)
   }
+  return(fcn_new)
+}
+
+# Compute a decomposition of an arbitrary function on the graph into a sum of
+# maximum monotonic (non-strictly) decreasing functions.
+# The function is defined on vertices in a table `fcn` with a `nodes` column
+# and `value` column.
+# Edges of the graph are defined by a table `grph` 
+# with rows `source` and `destination`
+# Note: this is only guaranteed to work if the graph is a directed acyclic graph
+# Cycles in the graph will cause this function to crash
+max_decreasing_decomp <- function(grph,fcn){
+  
+  # Initial setup
+  i <- 1
+  minimal <- minimal_elements(grph, fcn) # Current minimal elements
+  fcn_remaining <- fcn # This will be the remaining portion of the function left to decompose
+  fcn_new <- fcn %>% 
+    mutate(decomp='original')
+  
+  # Compute the maximum decreasing function bounded by what remains
+  fcn_new <- fcn_new %>% # TODO: remove minimal elements
+    bind_rows(max_decreasing(grph,fcn_remaining) %>% mutate(decomp=as.character(i)))
+  
+  # Determine the amount of function left to decompose after this is complete
+  fcn_remaining <- fcn_new %>% 
+    filter(decomp!='original') %>% 
+    group_by(node) %>% 
+    summarize(value=sum(value)) %>%
+    left_join(fcn_remaining,by=c(node='node')) %>%
+    mutate(value=value.y-value.x) %>%
+    select(node,value)
+  
+  print(fcn_remaining)
+  
+  # TODO: Determine the new set of minimal elements
+  
+  # TODO: Iteration clause
+
   return(fcn_new)
 }
 
@@ -72,3 +112,4 @@ grph %>%
 
 # Produce the first maximum monotonic decreasing function
 max_decreasing(grph,fcn)
+
