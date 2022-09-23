@@ -11,6 +11,38 @@ minimal_elements <- function(grph,vertices){
     anti_join(grph,by=c(node='destination'))
 }
 
+# Compute the maximum monotonic (non-strictly) decreasing function on a graph.
+# The function is defined on vertices in a table `fcn` with a `nodes` column
+# and `value` column.
+# Edges of the graph are defined by a table `grph` 
+# with rows `source` and `destination`
+# Note: this is only guaranteed to work if the graph is a directed acyclic graph
+# Cycles in the graph will cause this function to crash
+max_decreasing <- function(grph,fcn){
+  current_stage <- minimal_elements(grph,fcn) # These are the minimal elements
+  
+  fcn_new <- current_stage
+  
+  while(nrow(current_stage)>0){ # Note: this condition is superfluous
+    jnk <- current_stage %>%
+      inner_join(grph,by=c(node='source')) %>% # Immediate successors of the minimal elements
+      inner_join(fcn,by=c(destination='node')) %>%  # Collect function values already at successor
+      select(-node) %>%
+      pivot_longer(c(value.x,value.y),names_to='foo') %>%
+      select(-foo) %>%  
+      group_by(destination) 
+    
+    if(nrow(jnk) == 0 ) {break;} # Check to see if we're finished
+    
+    current_stage <- jnk %>%
+      summarize(value=min(value)) %>% # Maximum permissible values on immediate successors
+      transmute(node=destination,value=value) # Fix names
+    
+    fcn_new <- fcn_new %>% bind_rows(current_stage)
+  }
+  return(fcn_new)
+}
+
 # Sample graph data
 grph <- tibble(source=c('A','B','B','B','C','C','D','D','BC','BD','CD'),
                destination=c('AB','AB','BC','BD','BC','CD','BD','CD','BCD','BCD','BCD'))
@@ -38,24 +70,5 @@ grph %>%
          test2=(f2.x>=f2.y),
          test3=(f3.x>=f3.y))
 
-current_stage <- minimal_elements(grph,fcn) # These are the minimal elements
-
-fcn_new <- current_stage
-
-while(nrow(current_stage)>0){ # Note: this condition is superfluous
-  jnk <- current_stage %>%
-    inner_join(grph,by=c(node='source')) %>% # Immediate successors of the minimal elements
-    inner_join(fcn,by=c(destination='node')) %>%  # Collect function values already at successor
-    select(-node) %>%
-    pivot_longer(c(value.x,value.y),names_to='foo') %>%
-    select(-foo) %>%  
-    group_by(destination) 
-  
-  if(nrow(jnk) == 0 ) {break;} # Check to see if we're finished
-  
-  current_stage <- jnk %>%
-    summarize(value=min(value)) %>% # Maximum permissible values on immediate successors
-    transmute(node=destination,value=value) # Fix names
-
-  fcn_new <- fcn_new %>% bind_rows(current_stage)
-}
+# Produce the first maximum monotonic decreasing function
+max_decreasing(grph,fcn)
