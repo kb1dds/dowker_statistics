@@ -174,7 +174,12 @@ data <- read_csv('uc07_rom_windows.csv') %>%
   filter(count>0)
 
 dowker_table <- data %>% 
-  filter(count>40)%>%
+  filter(count>40)%>% # Determined by manual experimentation
   dowker_nest(feature_vars = byte_value,obs_vars = byte_offset)
 
 dg <- dowker_graph(dowker_table)
+
+max_decreasing_decomp(dg,
+                      dowker_table %>% transmute(node=feature_pattern,
+                                                 value=weight)) %>% 
+  pivot_wider(node,names_from=decomp,values_from=value)
