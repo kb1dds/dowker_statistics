@@ -88,6 +88,53 @@ max_decreasing_decomp <- function(grph,fcn){
   return(fcn_new)
 }
 
+## Generate weighted Dowker nested representation of the data
+# Input: df = data frame to be consumed
+#        feature_vars = the column in df for a tidy-select of variables 
+#                       specifying features (this is the base space of )
+#        obs_vars = the column in df for a tidy-select of variables 
+#                   specifying the observations
+# Output: a new data frame in which each row consists of several nested columns
+#       feature_pattern = values from left_var specifying each unique pattern of 
+#                 features found in df
+#       observations = the observations that correspond to the feature pattern
+#       weight = length of feature
+#       nobs = length of observations
+# 
+# This function generates a minimal specification of the Dowker cosheaf 
+# representation, in which the 
+# * Base space vertices are the columns selected by feature_vars
+# * The costalks (fibers) are geneated by the columns selected by obs_vars
+# Note: The costalks for the Dowker cosheaf can be computed from these data by 
+# taking the union of the observations associated with each feature pattern 
+# that is less restrictive
+dowker_nest <- function(df,feature_vars,obs_vars){
+  df %>%
+    ungroup() %>%
+    select({{feature_vars}},{{obs_vars}}) %>%
+    nest(feature_pattern={{feature_vars}}) %>%
+    group_by(feature_pattern) %>%
+    nest(observations={{obs_vars}}) %>%
+    mutate(weight=sapply(observations,function(x){nrow(x)}),
+           feature_count=sapply(feature_pattern,function(x){nrow(x)})) %>%
+    ungroup()
+}
+
+# Construct graph from weighted Dowker nested data
+# Input: a data frame in which each row consists of several nested columns
+#       feature_pattern = values from left_var specifying each unique pattern of 
+#                 features found in df
+# Output: a new data frame with `source` and `destination` columns, both of 
+#        which have values taken from the `feature_pattern` column of the input
+# Note: this runs in O(n^2) where n is the number of rows in the input.  
+#       Consider filtering by weight or nobs before using this function
+dowker_graph <- function(dowker_table){
+  with(dowker_table,
+       cross_df(tibble(source=feature_pattern,
+                       destination=feature_pattern),
+                       .filter=function(x,y){any(nrow(anti_join(x,y,by=NULL)==0))}))
+}
+
 # Sample graph data
 grph <- tibble(source=c('A','B','B','B','C','C','D','D','BC','BD','CD'),
                destination=c('AB','AB','BC','BD','BC','CD','BD','CD','BCD','BCD','BCD'))
@@ -117,3 +164,17 @@ grph %>%
 
 # Decompose function
 max_decreasing_decomp(grph,fcn) %>% pivot_wider(node,names_from=decomp,values_from=value)
+
+##### A different example
+
+data <- read_csv('uc07_rom_windows.csv') %>%
+  pivot_longer(cols=!byte_offset,
+               names_to='byte_value',
+               values_to='count') %>%
+  filter(count>0)
+
+dowker_table <- data %>% 
+  filter(count>40)%>%
+  dowker_nest(feature_vars = byte_value,obs_vars = byte_offset)
+
+dg <- dowker_graph(dowker_table)
