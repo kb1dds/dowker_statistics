@@ -132,7 +132,8 @@ dowker_graph <- function(dowker_table){
   with(dowker_table,
        cross_df(tibble(source=feature_pattern,
                        destination=feature_pattern),
-                       .filter=function(x,y){(nrow(x)>nrow(y)) & any(nrow(anti_join(x,y,by=NULL)==0))}))
+                       .filter=function(x,y){(nrow(x)>=nrow(y)) |
+                           any(nrow(anti_join(x,y,by=NULL)==0))}))
 }
 
 # Sample graph data
