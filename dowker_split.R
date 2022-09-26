@@ -183,3 +183,23 @@ max_decreasing_decomp(dg,
                       dowker_table %>% transmute(node=feature_pattern,
                                                  value=weight)) %>% 
   pivot_wider(node,names_from=decomp,values_from=value)
+
+# Modification of the above example; instead of filtering for large byte counts directly,
+# aggregate them randomly first
+
+agg_table <- tibble(byte_value=0:255 %>% as.character, 
+                    group=sample.int(10,size=256,replace=TRUE))
+
+dowker_table2 <- data %>% 
+  left_join(agg_table, by=c(byte_value='byte_value')) %>%
+  group_by(byte_offset,group) %>%
+  summarize(count=sum(count)) %>%
+  filter(count > 50) %>%
+  dowker_nest(feature_vars = group,obs_vars = byte_offset)
+
+dg2 <- dowker_graph(dowker_table2)
+
+max_decreasing_decomp(dg2,
+                      dowker_table2 %>% transmute(node=feature_pattern,
+                                                  value=weight)) %>% 
+  pivot_wider(node,names_from=decomp,values_from=value)
