@@ -39,7 +39,13 @@ max_decreasing <- function(grph,fcn){
       summarize(value=min(value)) %>% # Maximum permissible values on immediate successors
       transmute(node=destination,value=value) # Fix names
     
-    fcn_new <- fcn_new %>% bind_rows(current_stage)
+    # Merge in the new results.  
+    # Note that we might incur some duplicates if the graph is not a Hasse 
+    # diagram in that it has "short cut" paths
+    fcn_new <- fcn_new %>% 
+      bind_rows(current_stage) %>%
+      group_by(node) %>%
+      summarize(value=min(value))
   }
   return(fcn_new)
 }
@@ -64,11 +70,12 @@ max_decreasing_decomp <- function(grph,fcn){
   while(any(fcn_remaining$value>0)){
     # Determine the remaining graph minimal elements
     minimal <- minimal_elements(grph_new, fcn_remaining)
-    
+  
     # Compute the maximum decreasing function bounded by what remains
     fcn_new <- fcn_new %>% 
-      bind_rows(max_decreasing(grph_new,fcn_remaining) %>% mutate(decomp=as.character(i)))
-  
+      bind_rows(max_decreasing(grph_new,fcn_remaining) %>% 
+                  mutate(decomp=as.character(i)))
+    
     # Determine the amount of function left to decompose after this is complete
     fcn_remaining <- fcn_new %>% 
       filter(decomp!='original') %>% 
@@ -77,7 +84,7 @@ max_decreasing_decomp <- function(grph,fcn){
       left_join(fcn,by=c(node='node')) %>%
       mutate(value=value.y-value.x) %>%
       select(node,value)
-  
+    
     # Prune graph by removing edges from minimal elements
     grph_new <- grph_new %>% 
       anti_join(minimal, by=c(source='node'))
@@ -200,7 +207,8 @@ dowker_table2 <- data %>%
 
 dg2 <- dowker_graph(dowker_table2)
 
-dd2 <- max_decreasing_decomp(dg2,
-                      dowker_table2 %>% transmute(node=feature_pattern,
-                                                  value=weight)) %>% 
+dt2 <- dowker_table2 %>% transmute(node=feature_pattern,value=weight)
+
+dd2 <- max_decreasing_decomp(dg2,dt2) %>% 
   pivot_wider(node,names_from=decomp,values_from=value)
+
