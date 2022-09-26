@@ -3,7 +3,7 @@
 library(tidyverse)
 
 # Compute the minimal elements from a graph, whose vertices are defined by a
-# table `vertices` with a `nodes` column and edges defined by a table `grph` 
+# table `vertices` with a `node` column and edges defined by a table `grph` 
 # with rows `source` and `destination`
 # Other columns of `vertices` are preserved
 minimal_elements <- function(grph,vertices){
@@ -13,7 +13,7 @@ minimal_elements <- function(grph,vertices){
 
 # Compute the maximum monotonic (non-strictly) decreasing function on a graph
 # which is bounded above by an arbitrary function.
-# The function is defined on vertices in a table `fcn` with a `nodes` column
+# The function is defined on vertices in a table `fcn` with a `node` column
 # and `value` column.
 # Edges of the graph are defined by a table `grph` 
 # with rows `source` and `destination`
@@ -132,7 +132,7 @@ dowker_graph <- function(dowker_table){
   with(dowker_table,
        cross_df(tibble(source=feature_pattern,
                        destination=feature_pattern),
-                       .filter=function(x,y){any(nrow(anti_join(x,y,by=NULL)==0))}))
+                       .filter=function(x,y){(nrow(x)>nrow(y)) & any(nrow(anti_join(x,y,by=NULL)==0))}))
 }
 
 # Sample graph data
@@ -179,7 +179,7 @@ dowker_table <- data %>%
 
 dg <- dowker_graph(dowker_table)
 
-max_decreasing_decomp(dg,
+dd <- max_decreasing_decomp(dg,
                       dowker_table %>% transmute(node=feature_pattern,
                                                  value=weight)) %>% 
   pivot_wider(node,names_from=decomp,values_from=value)
@@ -199,7 +199,7 @@ dowker_table2 <- data %>%
 
 dg2 <- dowker_graph(dowker_table2)
 
-max_decreasing_decomp(dg2,
+dd2 <- max_decreasing_decomp(dg2,
                       dowker_table2 %>% transmute(node=feature_pattern,
                                                   value=weight)) %>% 
   pivot_wider(node,names_from=decomp,values_from=value)
