@@ -56,17 +56,15 @@ Tool: Robinson's "Dowker splitting" algorithm
 # TODO:
 
 * Jaehee: R library skeleton structure
- - Need CRAN-unique package name
+ - Need CRAN-unique package name: `dowkerr`
  - Developers need to install some packages
  - We will need some official unit tests
  - repo directory structure
  - License = Apache 2.0
 
 * Tate: Port over `dowker_nest` (mostly complete)
- Input:
-  1. Relation table with observations, features
- Output:
-  1. Dowker table of feature patterns and observation sets
+ - Pull request in progress!
+ - Jaehee has a newer version... try that instead!
 
 * Robinson (Jaehee: load the initial version from your summer code!): Create `dowker_probability`
  Input:
