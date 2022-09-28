@@ -84,4 +84,6 @@ Tool: Robinson's "Dowker splitting" algorithm
  Comment: it might be more efficient to start from the Relation table... Look closely at the Dowker graph code in Python
 
 * Robinson: Dowker splitting tool
- - 
+ - Initial draft written and committed to `dowker_splitting` branch
+ - Not efficient, but runs...
+ - Exploring usage on various sample datasets
