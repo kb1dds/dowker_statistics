@@ -56,6 +56,11 @@ Tool: Robinson's "Dowker splitting" algorithm
 # TODO:
 
 * Jaehee: R library skeleton structure
+ - Need CRAN-unique package name
+ - Developers need to install some packages
+ - We will need some official unit tests
+ - repo directory structure
+ - License = Apache 2.0
 
 * Tate: Port over `dowker_nest` (mostly complete)
  Input:
@@ -78,5 +83,5 @@ Tool: Robinson's "Dowker splitting" algorithm
   1. Table of pairs of feature patterns with new column for weight counts for each.  Constraint: the feature pattern 1 is a subset of feature pattern 2... Also might only include inconsistent edges
  Comment: it might be more efficient to start from the Relation table... Look closely at the Dowker graph code in Python
 
-* Dowker splitting tool
- TBD  
+* Robinson: Dowker splitting tool
+ - 
