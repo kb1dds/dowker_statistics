@@ -173,7 +173,9 @@ grph %>%
 # Decompose function
 max_decreasing_decomp(grph,fcn) %>% pivot_wider(node,names_from=decomp,values_from=value)
 
-##### A different example
+##### A different example: 
+##### byte statistics in ROM containing executable binary code for three 
+##### different kinds of CPUs
 
 data <- read_csv('uc07_rom_windows.csv') %>%
   pivot_longer(cols=!byte_offset,
@@ -212,3 +214,26 @@ dt2 <- dowker_table2 %>% transmute(node=feature_pattern,value=weight)
 dd2 <- max_decreasing_decomp(dg2,dt2) %>% 
   pivot_wider(node,names_from=decomp,values_from=value)
 
+##### CSV data example
+
+data_csv <- read_csv('CSVfilters.csv')
+
+data_csv_rel <- data_csv %>% 
+  pivot_longer(!FILEHASH,names_to='feature_type',values_to='feature') %>%
+  filter(feature!='n/a')
+
+csv_dowker_table <- data_csv_rel %>%
+    dowker_nest(feature_vars=feature,
+                obs_vars = FILEHASH)
+
+csv_dg <- dowker_graph(csv_dowker_table)
+
+csv_dt <- csv_dowker_table %>% transmute(node=feature_pattern,value=weight)
+
+csv_dd <- max_decreasing_decomp(csv_dg,csv_dt) %>% 
+  pivot_wider(node,names_from=decomp,values_from=value)
+
+csv_dd %>% 
+  mutate(feature_pattern=map(node,~str_flatten(.$feature,collapse=';'))) %>%
+  select(-node) %>%
+  write_csv('CSVfilters_decomp.csv')
