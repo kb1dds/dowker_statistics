@@ -234,6 +234,6 @@ csv_dd <- max_decreasing_decomp(csv_dg,csv_dt) %>%
   pivot_wider(node,names_from=decomp,values_from=value)
 
 csv_dd %>% 
-  mutate(feature_pattern=map(node,~str_flatten(.$feature,collapse=';'))) %>%
+  mutate(feature_pattern=map(node,~str_flatten(.$feature,collapse=' '))%>%unlist) %>%
   select(-node) %>%
   write_csv('CSVfilters_decomp.csv')
