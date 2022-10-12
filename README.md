@@ -83,5 +83,4 @@ Tool: Robinson's "Dowker splitting" algorithm
 
 * Robinson: Dowker splitting tool
  - Initial draft written and committed to `dowker_splitting` branch
- - Not efficient, but runs...
- - Exploring usage on various sample datasets
+ - Try on PDF datasets (probably make it run faster)
