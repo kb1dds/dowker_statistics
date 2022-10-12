@@ -67,19 +67,24 @@ Tool: Robinson's "Dowker splitting" algorithm
  - Jaehee has a newer version... try that instead!
 
 * Robinson (Jaehee: load the initial version from your summer code!): Create `dowker_probability`
- Input:
+
+Input:
   1. Dowker table of feature patterns and observation sets
   2. Training table: observations, classes (factor)
   3. Test table: observations
- Output:
+
+Output:
   1. New column added to the test table for each level of the classes in training table: probability of that class
 
 * Tate: Create inconsistent edges tool
+
  Input:
   1. Dowker table of feature patterns and observation sets
- Output:
+
+Output:
   1. Table of pairs of feature patterns with new column for weight counts for each.  Constraint: the feature pattern 1 is a subset of feature pattern 2... Also might only include inconsistent edges
- Comment: it might be more efficient to start from the Relation table... Look closely at the Dowker graph code in Python
+
+Comment: it might be more efficient to start from the Relation table... Look closely at the Dowker graph code in Python
 
 * Robinson: Dowker splitting tool
  - Initial draft written and committed to `dowker_splitting` branch
