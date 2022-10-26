@@ -55,26 +55,16 @@ Tool: Robinson's "Dowker splitting" algorithm
 
 # TODO:
 
-* Jaehee: R library skeleton structure
- - Need CRAN-unique package name: `dowkerr`
- - Developers need to install some packages
- - We will need some official unit tests
- - repo directory structure
- - License = Apache 2.0
-
-* Tate: Port over `dowker_nest` (mostly complete)
- - Pull request in progress!
- - Jaehee has a newer version... try that instead!
-
-* Robinson (Jaehee: load the initial version from your summer code!): Create `dowker_probability`
-
-Input:
-  1. Dowker table of feature patterns and observation sets
-  2. Training table: observations, classes (factor)
-  3. Test table: observations
-
-Output:
-  1. New column added to the test table for each level of the classes in training table: probability of that class
+* Jaehee: 
+ - Example (summer) code:
+  . Uploading and documenting as appropriate
+  . Fixed `gutenbergr` dependency by using old version.  Will include instructions for this...
+ - R library skeleton structure
+  . Need CRAN-unique package name: `dowkerr`
+  . Developers need to install some packages
+  . We will need some official unit tests
+  . repo directory structure
+  . License = Apache 2.0
 
 * Tate: Create inconsistent edges tool
 
@@ -89,3 +79,12 @@ Comment: it might be more efficient to start from the Relation table... Look clo
 * Robinson: Dowker splitting tool
  - Initial draft written and committed to `dowker_splitting` branch
  - Try on PDF datasets (probably make it run faster)
+
+* Robinson: Create `dowker_probability`:
+Input:
+  1. Dowker table of feature patterns and observation sets
+  2. Training table: observations, classes (factor)
+  3. Test table: observations
+
+Output:
+  1. New column added to the test table for each level of the classes in training table: probability of that class
