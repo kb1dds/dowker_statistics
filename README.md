@@ -55,32 +55,33 @@ Tool: Robinson's "Dowker splitting" algorithm
 
 # TODO:
 
-* Jaehee: 
- - Example (summer) code:
-  . Uploading and documenting as appropriate
-  . Fixed `gutenbergr` dependency by using old version.  Will include instructions for this...
- - R library skeleton structure
-  . Need CRAN-unique package name: `dowkerr`
-  . Developers need to install some packages
-  . We will need some official unit tests
-  . repo directory structure
-  . License = Apache 2.0
-
-* Tate: Create inconsistent edges tool
-
- Input:
+## Jaehee: R library skeleton structure
+ - Need CRAN-unique package name: `dowkerr`
+ - Developers need to install some packages
+ - We will need some official unit tests
+ - repo directory structure
+ - License = Apache 2.0
+  
+## Jaehee: Example (summer) code:
+ - Uploading and documenting as appropriate
+ - Fixed `gutenbergr` dependency by using old version.  Will include instructions for this...
+ 
+## Tate: Create inconsistent edges tool
+Input:
   1. Dowker table of feature patterns and observation sets
 
 Output:
-  1. Table of pairs of feature patterns with new column for weight counts for each.  Constraint: the feature pattern 1 is a subset of feature pattern 2... Also might only include inconsistent edges
+  1. Table of pairs of feature patterns with new column for weight counts for each.  
+ 
+Constraint: the feature pattern 1 is a subset of feature pattern 2 ... Also might only include inconsistent edges
 
 Comment: it might be more efficient to start from the Relation table... Look closely at the Dowker graph code in Python
 
-* Robinson: Dowker splitting tool
+## Robinson: Dowker splitting tool
  - Initial draft written and committed to `dowker_splitting` branch
  - Try on PDF datasets (probably make it run faster)
 
-* Robinson: Create `dowker_probability`:
+## Robinson: Create `dowker_probability`:
 Input:
   1. Dowker table of feature patterns and observation sets
   2. Training table: observations, classes (factor)
