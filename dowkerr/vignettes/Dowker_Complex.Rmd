@@ -1,0 +1,20 @@
+---
+title: "Dowker_Complex"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Dowker_Complex}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(dowkerr)
+hello()
+```
