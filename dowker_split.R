@@ -139,7 +139,7 @@ dowker_graph <- function(dowker_table){
   with(dowker_table,
        cross_df(tibble(source=feature_pattern,
                        destination=feature_pattern),
-                .filter=function(x,y){(nrow(x)>nrow(y)) || 
+                .filter=function(x,y){(nrow(x)>=nrow(y)) || 
                     !any(nrow(anti_join(x,y,by=NULL))==0)}))
 }
 
@@ -228,6 +228,10 @@ csv_dowker_table <- data_csv_rel %>%
 
 csv_dg <- dowker_graph(csv_dowker_table)
 
+csv_dg %>%
+  mutate(source_str=map(source,~str_flatten(.$feature,collapse=' '))%>%unlist,
+         dest_str=map(destination,~str_flatten(.$feature,collapse=' '))%>%unlist) %>% View()
+
 csv_dt <- csv_dowker_table %>% transmute(node=feature_pattern,value=weight)
 
 csv_dd <- max_decreasing_decomp(csv_dg,csv_dt) %>% 
@@ -237,3 +241,4 @@ csv_dd %>%
   mutate(feature_pattern=map(node,~str_flatten(.$feature,collapse=' '))%>%unlist) %>%
   select(-node) %>%
   write_csv('CSVfilters_decomp.csv')
+
