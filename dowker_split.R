@@ -219,8 +219,14 @@ dd2 <- max_decreasing_decomp(dg2,dt2) %>%
 data_csv <- read_csv('CSVfilters.csv')
 
 data_csv_rel <- data_csv %>% 
+  mutate(ENCODING=str_to_upper(str_conv(ENCODING,'UTF-8'))) %>%  # Ha.  Really.
   pivot_longer(!FILEHASH,names_to='feature_type',values_to='feature') %>%
   filter(feature!='n/a')
+
+data_csv_rel %>% 
+  mutate(message=paste(feature_type,feature)) %>%
+  ggplot(aes(x=FILEHASH,y=message)) + 
+  geom_bin_2d()
 
 csv_dowker_table <- data_csv_rel %>%
     dowker_nest(feature_vars=feature,
