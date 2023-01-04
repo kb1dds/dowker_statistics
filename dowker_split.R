@@ -1,6 +1,7 @@
 # Dowker splitting algorithm implementation
 
 library(tidyverse)
+library(igraph)
 
 # Compute the minimal elements from a graph, whose vertices are defined by a
 # table `vertices` with a `node` column and edges defined by a table `grph` 
@@ -70,7 +71,12 @@ max_decreasing_decomp <- function(grph,fcn){
   while(any(fcn_remaining$value>0)){
     # Determine the remaining graph minimal elements
     minimal <- minimal_elements(grph_new, fcn_remaining)
-  
+
+    # Debugging/useful for pubs code
+    print(minimal %>% filter(value>0) %>% 
+            mutate(node=map(node,~str_flatten(.$feature,collapse=' '))%>%unlist),
+          n=Inf)
+      
     # Compute the maximum decreasing function bounded by what remains
     fcn_new <- fcn_new %>% 
       bind_rows(max_decreasing(grph_new,fcn_remaining) %>% 
@@ -248,3 +254,28 @@ csv_dd %>%
   select(-node) %>%
   write_csv('CSVfilters_decomp.csv')
 
+# igraph drawing
+
+## This is a bit annoying because igraph wants integer vertex IDs, whereas it's 
+## more natural to use R lists instead.  We therefore need to do a bit of 
+## translation in order to construct the graph.
+
+csv_dt_ind <- csv_dt %>% 
+  mutate(idx=row_number())
+
+csv_dg_ind <- csv_dg %>% 
+  left_join(csv_dt_ind %>% select(-value), by=c(source='node')) %>%
+  transmute(destination=destination,
+            source=idx) %>%
+  left_join(csv_dt_ind %>% select(-value), by=c(destination='node')) %>%
+  transmute(source=source,
+            destination=idx)
+
+csv_dg_ig <- make_empty_graph() +
+  vertices(csv_dt_ind$idx,
+           label=map(csv_dt$node,~str_flatten(.$feature,collapse=' ')),
+           size=3*log10(csv_dt$value)) +
+  graph_from_data_frame(csv_dg_ind)
+
+## Expect to do some manual adjustment...
+tkplot(csv_dg_ig)
