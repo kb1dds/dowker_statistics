@@ -71,20 +71,18 @@ max_decreasing_decomp <- function(grph,fcn){
   while(any(fcn_remaining$value>0)){
     # Determine the remaining graph minimal elements
     minimal <- minimal_elements(grph_new, fcn_remaining)
-
-    # Debugging/useful for pubs code
-    print(minimal %>% filter(value>0) %>% 
-            mutate(node=map(node,~str_flatten(.$feature,collapse=' '))%>%unlist),
-          n=Inf)
       
     # Compute the maximum decreasing function bounded by what remains
     fcn_new <- fcn_new %>% 
+      bind_rows(minimal %>% 
+                filter(value>0) %>%
+                mutate(decomp='root_count')) %>%
       bind_rows(max_decreasing(grph_new,fcn_remaining) %>% 
                   mutate(decomp=as.character(i)))
     
     # Determine the amount of function left to decompose after this is complete
     fcn_remaining <- fcn_new %>% 
-      filter(decomp!='original') %>% 
+      filter(decomp!='original',decomp!='root_count') %>% 
       group_by(node) %>% 
       summarize(value=sum(value)) %>%
       left_join(fcn,by=c(node='node')) %>%
@@ -239,10 +237,6 @@ csv_dowker_table <- data_csv_rel %>%
                 obs_vars = FILEHASH)
 
 csv_dg <- dowker_graph(csv_dowker_table)
-
-csv_dg %>%
-  mutate(source_str=map(source,~str_flatten(.$feature,collapse=' '))%>%unlist,
-         dest_str=map(destination,~str_flatten(.$feature,collapse=' '))%>%unlist) %>% View()
 
 csv_dt <- csv_dowker_table %>% transmute(node=feature_pattern,value=weight)
 
