@@ -21,9 +21,12 @@ minimal_elements <- function(grph,vertices){
 # Note: this is only guaranteed to work if the graph is a directed acyclic graph
 # Cycles in the graph will cause this function to crash
 max_decreasing <- function(grph,fcn){
-  current_stage <- minimal_elements(grph,fcn) # These are the minimal elements
+  # Determine the next remaining minimal element to use
+  current_stage <- minimal_elements(grph,fcn) %>% 
+    slice_max(value,n=1) %>%
+    slice_head()
   
-  fcn_new <- current_stage
+  fcn_new <- current_stage 
   
   while(nrow(current_stage)>0){ # Note: this condition is superfluous
     jnk <- current_stage %>%
@@ -69,15 +72,27 @@ max_decreasing_decomp <- function(grph,fcn){
     mutate(decomp='original')
   
   while(any(fcn_remaining$value>0)){
-    # Determine the remaining graph minimal elements
-    minimal <- minimal_elements(grph_new, fcn_remaining)
-      
+    # Determine the next remaining graph minimal element
+    minimal <- minimal_elements(grph_new, fcn_remaining) %>% 
+      slice_max(value,n=1) %>% 
+      slice_head()
+
     # Compute the maximum decreasing function bounded by what remains
+    md <- max_decreasing(grph_new,fcn_remaining)
+    
+    # Splice in zeros for the values outside the support of the current minimal element
+    md <- md %>% 
+      bind_rows(fcn %>% 
+                select(node) %>% 
+                anti_join(md,by=c(node='node')) %>%
+                mutate(value=0L))
+    
+    # Record maximum decreasing function
     fcn_new <- fcn_new %>% 
       bind_rows(minimal %>% 
                 filter(value>0) %>%
                 mutate(decomp='root_count')) %>%
-      bind_rows(max_decreasing(grph_new,fcn_remaining) %>% 
+      bind_rows(md %>% 
                   mutate(decomp=as.character(i)))
     
     # Determine the amount of function left to decompose after this is complete
@@ -243,7 +258,7 @@ csv_dt <- csv_dowker_table %>% transmute(node=feature_pattern,value=weight)
 csv_dd <- max_decreasing_decomp(csv_dg,csv_dt) %>% 
   pivot_wider(node,names_from=decomp,values_from=value)
 
-csv_dd %>% 
+ccsv_dd %>% 
   mutate(feature_pattern=map(node,~str_flatten(.$feature,collapse=' '))%>%unlist) %>%
   select(-node) %>%
   write_csv('CSVfilters_decomp.csv')
