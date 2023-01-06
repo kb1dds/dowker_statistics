@@ -74,22 +74,22 @@ max_decreasing_decomp <- function(grph,fcn){
     minimal <- minimal_elements(grph_new, fcn_remaining) %>% 
       slice_max(value,n=1) %>% 
       slice_head()
-
+    
     # Compute the maximum decreasing function bounded by what remains
     md <- max_decreasing(grph_new,fcn_remaining,minimal)
     
     # Splice in zeros for the values outside the support of the current minimal element
     md <- md %>% 
       bind_rows(fcn %>% 
-                select(node) %>% 
-                anti_join(md,by=c(node='node')) %>%
-                mutate(value=0L))
+                  select(node) %>% 
+                  anti_join(md,by=c(node='node')) %>%
+                  mutate(value=0L))
     
     # Record maximum decreasing function
     fcn_new <- fcn_new %>% 
       bind_rows(minimal %>% 
-                filter(value>0) %>%
-                mutate(decomp='root_count')) %>%
+                  filter(value>0) %>%
+                  mutate(decomp='root_count')) %>%
       bind_rows(md %>% 
                   mutate(decomp=as.character(i)))
     
@@ -102,16 +102,17 @@ max_decreasing_decomp <- function(grph,fcn){
       mutate(value=value.y-value.x) %>%
       select(node,value)
     
-    # Prune graph by removing edges from minimal elements
+    # Prune graph by removing edges from minimal element and any that have been
+    # zeroed out by removal above
     grph_new <- grph_new %>% 
-      anti_join(minimal, by=c(source='node'))
+      anti_join(minimal, by=c(source='node')) %>%
+      anti_join(fcn_remaining %>% filter(value==0), by=c(source='node'))
     
     i <- i+1
   }
-
+  
   return(fcn_new)
 }
-
 ## Generate weighted Dowker nested representation of the data
 # Input: df = data frame to be consumed
 #        feature_vars = the column in df for a tidy-select of variables 
@@ -256,7 +257,7 @@ csv_dt <- csv_dowker_table %>% transmute(node=feature_pattern,value=weight)
 csv_dd <- max_decreasing_decomp(csv_dg,csv_dt) %>% 
   pivot_wider(node,names_from=decomp,values_from=value)
 
-ccsv_dd %>% 
+csv_dd %>% 
   mutate(feature_pattern=map(node,~str_flatten(.$feature,collapse=' '))%>%unlist) %>%
   select(-node) %>%
   write_csv('CSVfilters_decomp.csv')
