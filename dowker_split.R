@@ -18,15 +18,13 @@ minimal_elements <- function(grph,vertices){
 # and `value` column.
 # Edges of the graph are defined by a table `grph` 
 # with rows `source` and `destination`
+# `root_node` is a table with the same columns as `fcn` intended to be used
+# to constrain the support of the function being constructed
 # Note: this is only guaranteed to work if the graph is a directed acyclic graph
 # Cycles in the graph will cause this function to crash
-max_decreasing <- function(grph,fcn){
-  # Determine the next remaining minimal element to use
-  current_stage <- minimal_elements(grph,fcn) %>% 
-    slice_max(value,n=1) %>%
-    slice_head()
-  
-  fcn_new <- current_stage 
+max_decreasing <- function(grph,fcn,root_nodes){
+  current_stage <- root_nodes
+  fcn_new <- root_nodes 
   
   while(nrow(current_stage)>0){ # Note: this condition is superfluous
     jnk <- current_stage %>%
@@ -78,7 +76,7 @@ max_decreasing_decomp <- function(grph,fcn){
       slice_head()
 
     # Compute the maximum decreasing function bounded by what remains
-    md <- max_decreasing(grph_new,fcn_remaining)
+    md <- max_decreasing(grph_new,fcn_remaining,minimal)
     
     # Splice in zeros for the values outside the support of the current minimal element
     md <- md %>% 
