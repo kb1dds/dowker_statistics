@@ -145,6 +145,28 @@ dowker_nest <- function(df,feature_vars,obs_vars){
     ungroup()
 }
 
+## Compute Dowker posterior class probabilities from the output of dowker_nest
+# 
+# Input: df = output from dowker_nest
+#        class_var = one of the column names in obs_var (used previously in 
+#                    the call to dowker_nest) to identify classes of 
+#                    observations
+# Output: a new data frame with columns
+#        feature_pattern = same as the input df
+#        class_prob = nested column of tibbles containing two columns:
+#              class_var = as before
+#              prob      = posterior probability of class_var given 
+#                          the feature_pattern
+dowker_class_probs <- function(df,class_var){
+  df %>% 
+    unnest(observations) %>% 
+    group_by(feature_pattern) %>% 
+    count({{class_var}}) %>% 
+    transmute(feature_pattern,{{class_var}},prob=n/sum(n)) %>% 
+    nest(class_prob=c({{class_var}},prob)) %>% 
+    ungroup()
+}
+
 # Construct graph from weighted Dowker nested data
 # Input: a data frame in which each row consists of several nested columns
 #       feature_pattern = values from left_var specifying each unique pattern of 
