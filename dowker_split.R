@@ -157,7 +157,7 @@ dowker_nest <- function(df,feature_vars,obs_vars){
 #              class_var = as before
 #              prob      = posterior probability of class_var given 
 #                          the feature_pattern
-dowker_class_probs <- function(df,class_var){
+dowker_prob <- function(df,class_var){
   df %>% 
     unnest(observations) %>% 
     group_by(feature_pattern) %>% 
