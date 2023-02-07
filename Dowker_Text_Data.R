@@ -1,15 +1,14 @@
-# Load libraries:
-library(gutenbergr) 
-library(tidyverse)
-library(tm)
-library(tidytext)
-library(ggthemes)
+# Loading PACMAN
+library(pacman)
 
-# Use gutenberg book data
+# Loading required packages and install them if not yet installed
+p_load(gutenbergr, tidyverse, tm, tidytext, ggthemes)
+
+# Use Gutenberg book data
 gutenberg_metadata <- gutenberg_metadata
 
-# gutenberg_download function is to download works using a project Gutenberg ID.
-# Use gutenberg text data topics in Politics, Art, Biology and combine them together:
+# "gutenberg_download" function is to download works using a project Gutenberg ID.
+# Use gutenberg text data topics in Politics, Art, Biology, Cookery, Travel and combine them together:
 gutenberg_15books <- gutenberg_download(c(5669, 147, 17306, 4776, 3207, 20125, 35894, 9596, 1341, 151, # Politics 10 
                                           7370, 612, 18, 2130, 6762, 1232, 20433, 39622, 34111, 15509, # Politics 20
                                           34645, 2176, 5000, 11242, 17408, 38532, 45504, 29904, 2398, 17373, # Art 10
@@ -33,9 +32,7 @@ total_words <- book_words %>%
 
 # create new stop word list using tf_idf 
 left_join(book_words, total_words) %>%  
-  bind_tf_idf(word, gutenberg_id, n) -> book_words
-
-book_words%>%  
+  bind_tf_idf(word, gutenberg_id, n) %>%  
   filter(tf_idf < 0.001) %>%  
   select(word) %>%  
   unique() -> stop_words_tf_idf
@@ -45,18 +42,32 @@ stop_words <- removeNumbers(stop_words_tf_idf$word) # remove numbers
 # gutenberg_id and text
 gutenberg_15books %>% 
   group_by(gutenberg_id) %>% 
-  slice_sample(n=500) %>% 
+  slice_sample(n=500, replace = TRUE) %>% 
   unnest_tokens(word, text) %>%  
   summarize(text = reduce(word, paste)) -> books
 
 # identify topics using logical values
 books %>%  
-  mutate(politics = books$gutenberg_id == 5669| books$gutenberg_id == 147| books$gutenberg_id ==17306| 
-           books$gutenberg_id ==4776| books$gutenberg_id ==3207 | books$gutenberg_id == 20125 | 
-           books$gutenberg_id == 35894 | books$gutenberg_id == 9596 | books$gutenberg_id == 1341| 
-           books$gutenberg_id == 151 | books$gutenberg_id ==7370 | books$gutenberg_id == 612| books$gutenberg_id == 18|
-           books$gutenberg_id == 2130| books$gutenberg_id == 6762| books$gutenberg_id==1232|books$gutenberg_id== 20433|
-           books$gutenberg_id==39622| books$gutenberg_id==34111| books$gutenberg_id==15509) %>%  
+  mutate(politics = books$gutenberg_id == 5669| 
+           books$gutenberg_id == 147| 
+           books$gutenberg_id ==17306| 
+           books$gutenberg_id ==4776| 
+           books$gutenberg_id ==3207 | 
+           books$gutenberg_id == 20125 | 
+           books$gutenberg_id == 35894 | 
+           books$gutenberg_id == 9596 | 
+           books$gutenberg_id == 1341| 
+           books$gutenberg_id == 151 | 
+           books$gutenberg_id ==7370 | 
+           books$gutenberg_id == 612| 
+           books$gutenberg_id == 18|
+           books$gutenberg_id == 2130| 
+           books$gutenberg_id == 6762| 
+           books$gutenberg_id==1232|
+           books$gutenberg_id== 20433|
+           books$gutenberg_id==39622| 
+           books$gutenberg_id==34111| 
+           books$gutenberg_id==15509) %>%  
   mutate(art = books$gutenberg_id == 34645| books$gutenberg_id == 2176|books$gutenberg_id ==5000| 
            books$gutenberg_id ==11242| books$gutenberg_id ==17408| books$gutenberg_id == 38532| 
            books$gutenberg_id == 45504| books$gutenberg_id == 29904| books$gutenberg_id == 2398| 
