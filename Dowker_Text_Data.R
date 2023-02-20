@@ -1,8 +1,19 @@
-# Loading PACMAN
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 0-  Loading Libraries                                                                                        ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 library(pacman)
 
-# Loading required packages and install them if not yet installed
+## Loading required packages and install them if not yet installed 
 p_load(gutenbergr, tidyverse, tm, tidytext, ggthemes)
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 1-  Loading data                                                                                        ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Use Gutenberg book data
 gutenberg_metadata <- gutenberg_metadata
@@ -20,7 +31,14 @@ gutenberg_15books <- gutenberg_download(c(5669, 147, 17306, 4776, 3207, 20125, 3
                                           944, 1082, 3177, 3704, 6317, 39496, 12422, 15777, 22117, 28323, # Travel 10
                                           39806, 39685, 39615, 39474, 39308, 39082, 39026, 38203, 27250, 22409), # Travel 20 
                                         mirror = "http://mirrors.xmission.com/gutenberg/")
-# tf-idf analysis
+
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 2-  tf-idf analysis                                                                                    ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 book_words <- gutenberg_15books %>%  
   unnest_tokens(word, text) %>%  
   count(gutenberg_id, word, sort = TRUE) %>%  
@@ -30,7 +48,12 @@ total_words <- book_words %>%
   group_by(gutenberg_id) %>%  
   summarize(total = sum(n))
 
-# create new stop word list using tf_idf 
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 3-  Create New Stop Word List using tf-idf                                                                                 ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 left_join(book_words, total_words) %>%  
   bind_tf_idf(word, gutenberg_id, n) %>%  
   filter(tf_idf < 0.001) %>%  
@@ -39,35 +62,33 @@ left_join(book_words, total_words) %>%
 
 stop_words <- removeNumbers(stop_words_tf_idf$word) # remove numbers 
 
-# gutenberg_id and text
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 4-  gutenberg_id and text                                                                                ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 gutenberg_15books %>% 
   group_by(gutenberg_id) %>% 
   slice_sample(n=500, replace = TRUE) %>% 
   unnest_tokens(word, text) %>%  
   summarize(text = reduce(word, paste)) -> books
 
-# identify topics using logical values
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 5-  Identify Topics Using Logical Values                                                                                ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 books %>%  
-  mutate(politics = books$gutenberg_id == 5669| 
-           books$gutenberg_id == 147| 
-           books$gutenberg_id ==17306| 
-           books$gutenberg_id ==4776| 
-           books$gutenberg_id ==3207 | 
-           books$gutenberg_id == 20125 | 
-           books$gutenberg_id == 35894 | 
-           books$gutenberg_id == 9596 | 
-           books$gutenberg_id == 1341| 
-           books$gutenberg_id == 151 | 
-           books$gutenberg_id ==7370 | 
-           books$gutenberg_id == 612| 
-           books$gutenberg_id == 18|
-           books$gutenberg_id == 2130| 
-           books$gutenberg_id == 6762| 
-           books$gutenberg_id==1232|
-           books$gutenberg_id== 20433|
-           books$gutenberg_id==39622| 
-           books$gutenberg_id==34111| 
-           books$gutenberg_id==15509) %>%  
+  mutate(politics = books$gutenberg_id == 5669| books$gutenberg_id == 147| books$gutenberg_id ==17306| 
+           books$gutenberg_id ==4776| books$gutenberg_id ==3207 | books$gutenberg_id == 20125 | 
+           books$gutenberg_id == 35894 | books$gutenberg_id == 9596 | books$gutenberg_id == 1341| 
+           books$gutenberg_id == 151 | books$gutenberg_id ==7370 | books$gutenberg_id == 612| 
+           books$gutenberg_id == 18| books$gutenberg_id == 2130| books$gutenberg_id == 6762| 
+           books$gutenberg_id==1232| books$gutenberg_id== 20433| books$gutenberg_id==39622| 
+           books$gutenberg_id==34111| books$gutenberg_id==15509) %>%  
   mutate(art = books$gutenberg_id == 34645| books$gutenberg_id == 2176|books$gutenberg_id ==5000| 
            books$gutenberg_id ==11242| books$gutenberg_id ==17408| books$gutenberg_id == 38532| 
            books$gutenberg_id == 45504| books$gutenberg_id == 29904| books$gutenberg_id == 2398| 
@@ -104,7 +125,13 @@ books_politics %>%
   rbind(books_cookery) %>%  
   rbind(books_travel) -> logical_full_books
 
-# Convert this text to a corpus: 
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 6-  Convert this text to a corpus                                                                                 ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 # Make a vector source from text (Convert vector to a Source object)
 books_source <- VectorSource(logical_full_books$text)
 books_corpus <- VCorpus(books_source)
@@ -132,8 +159,13 @@ clean_corpus <- function(corpus) {
 # Use clean_corpus function to the corpus: 
 clean_books_corpus <- clean_corpus(books_corpus)
 
-# Term Document Matrix:
-# Apply TDM to "Books" corpus 
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 7-  Apply Term Document Matrix to Books corpus                                                                               ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 books_tdm <- TermDocumentMatrix(clean_books_corpus)
 books_m <- as.matrix(books_tdm)
 
@@ -146,7 +178,13 @@ inspect(books_tdm)
 # Identify non-zero values:
 books_nonzero <- which(books_m != 0, arr.ind = TRUE)
 
-# Dowker Complex Function by Dr. Michael Robinson
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 8-  Dowker Complex Nest Function by Dr. Michael Robinson                                                                           ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# Define the dowker_nest function 
 dowker_nest <- function(df,feature_vars,obs_vars){
   df %>%
     ungroup() %>%
@@ -163,6 +201,12 @@ dowker_nest <- function(df,feature_vars,obs_vars){
 books_nonzero %>%  
   as_tibble() %>%  
   dowker_nest(Docs, Terms) -> books_dowker_nest
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 9-  Add columns                                                                        ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # add count columns 
 for (i in 1:nrow(books_dowker_nest)) {
@@ -181,6 +225,12 @@ for (i in 1:nrow(books_dowker_nest)) {
                                   books_dowker_nest[[8]][[i]], 
                                   books_dowker_nest[[9]][[i]])
 }
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 10-  Median                                                                           ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # Create Median function 
 mymedian <- function(l) {
@@ -201,6 +251,12 @@ for (i in 1:nrow(books_dowker_nest)) {
 # Add difference column 
 books_dowker_nest %>%  
   mutate(difference = max - median) -> books_dowker_nest
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 11-  Probability                                                                           ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # probability of each topic by full count
 books_dowker_nest %>%  
@@ -288,15 +344,25 @@ politics_data %>%
   rbind(cookery_data) %>% 
   rbind(travel_data) -> complete_data
 
-###### finalize data ###### 
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 12-  Finalized Data                                                                ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 books_dowker_nest %>%  
   select(c("observations", "weight", "difference", "score", "feature_count", "feature_pattern", "prob_art", "prob_politics", "prob_biology", "prob_cookery", "prob_travel")) %>%  
   unnest(feature_pattern) %>%
   left_join(complete_data %>% mutate(Docs = row_number()),
             by = c(Docs = "Docs")
   ) -> use_this_data
-#############################
-# plots 
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 13-  Plots                                                                    ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 ggplot(use_this_data, aes(x = prob_art)) +
   geom_histogram()
 
@@ -348,7 +414,6 @@ ggplot(use_this_data, aes(y=weight, x=prob_travel))+
   geom_point()+
   theme_bw()
 
-##################
 # Boxplot (prob art VS topics)
 use_this_data %>%  
   ggplot(aes(x = prob_art, y = as.factor(topics))) + 
@@ -419,7 +484,6 @@ use_this_data %>%
   geom_point()+
   theme_bw()
 
-#############################
 # histogram of prob of each one of these topics 
 use_this_data %>%  
   filter(topics == "politics") %>% 
@@ -468,3 +532,6 @@ use_this_data %>%
   ggplot(aes(x = prob_travel)) + 
   geom_histogram() + 
   theme_bw()
+
+
+
