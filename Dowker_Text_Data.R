@@ -1,3 +1,7 @@
+
+## List Dependencies
+## Make sure to download ....
+
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ##
 ## 0-  Loading Libraries                                                                                        ----
@@ -11,7 +15,7 @@ p_load(gutenbergr, tidyverse, tm, tidytext, ggthemes)
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ##
-## 1-  Loading data                                                                                        ----
+## 1.1 -  Loading data                                                                                        ----
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -31,6 +35,12 @@ gutenberg_15books <- gutenberg_download(c(5669, 147, 17306, 4776, 3207, 20125, 3
                                           944, 1082, 3177, 3704, 6317, 39496, 12422, 15777, 22117, 28323, # Travel 10
                                           39806, 39685, 39615, 39474, 39308, 39082, 39026, 38203, 27250, 22409), # Travel 20 
                                         mirror = "http://mirrors.xmission.com/gutenberg/")
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 1.2 - Documents, Topics (2 columns)                                                                                ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -128,9 +138,11 @@ books_politics %>%
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ##
-## 6-  Convert this text to a corpus                                                                                 ----
+## 6-  Convert this text to a corpus   ----
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+## Use different way 
 
 # Make a vector source from text (Convert vector to a Source object)
 books_source <- VectorSource(logical_full_books$text)
@@ -166,7 +178,7 @@ clean_books_corpus <- clean_corpus(books_corpus)
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-books_tdm <- TermDocumentMatrix(clean_books_corpus)
+books_tdm <- TermDocumentMatrix(books_corpus)
 books_m <- as.matrix(books_tdm)
 
 v3 <- sort(rowSums(books_m), decreasing=TRUE)
@@ -197,14 +209,22 @@ dowker_nest <- function(df,feature_vars,obs_vars){
     ungroup()
 } 
 
+#### Join the topics to the books_nonzero data
+
+### Change later 
+new_df
+
 # Apply Dowker Complex function to books_nonzero 
-books_nonzero %>%  
-  as_tibble() %>%  
-  dowker_nest(Docs, Terms) -> books_dowker_nest
+# books_nonzero %>%  
+#   as_tibble() %>%  
+#   dowker_nest(Docs, Terms) -> books_dowker_nest
+
+### change later
+dowker_nest(new_df,c(Docs, Topics), Terms) -> books_dowker_nest
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ##
-## 9-  Add columns                                                                        ----
+## 9-  Add columns (Comment later, verification)                                                                        ----
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -532,6 +552,39 @@ use_this_data %>%
   ggplot(aes(x = prob_travel)) + 
   geom_histogram() + 
   theme_bw()
+
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+##
+## 14-  Dowker prob function by Dr. Robinson                                                                     ----
+##
+## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+## Compute Dowker posterior class probabilities from the output of dowker_nest
+# 
+# Input: df = output from dowker_nest
+#        class_var = one of the column names in obs_var (used previously in 
+#                    the call to dowker_nest) to identify classes of 
+#                    observations
+# Output: a new data frame with columns
+#        feature_pattern = same as the input df
+#        class_prob = nested column of tibbles containing two columns:
+#              class_var = as before
+#              prob      = posterior probability of class_var given 
+#                          the feature_pattern
+
+dowker_prob <- function(df,class_var){
+  df %>% 
+    unnest(observations) %>% 
+    group_by(feature_pattern) %>% 
+    count({{class_var}}) %>% 
+    transmute(feature_pattern,{{class_var}},prob=n/sum(n)) %>% 
+    nest(class_prob=c({{class_var}},prob)) %>% 
+    ungroup()
+}
+
+dowker_prob(books_dowker_nest, topics) -> df_df
+
 
 
 
