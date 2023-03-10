@@ -22,7 +22,7 @@ minimal_elements <- function(grph,vertices){
 # to constrain the support of the function being constructed
 # Note: this is only guaranteed to work if the graph is a directed acyclic graph
 # Cycles in the graph will cause this function to crash
-max_decreasing <- function(grph,fcn,root_nodes){
+max_decreasing <- function(fcn,grph,root_nodes){
   current_stage <- root_nodes
   fcn_new <- root_nodes 
   
@@ -39,7 +39,7 @@ max_decreasing <- function(grph,fcn,root_nodes){
     
     current_stage <- jnk %>%
       summarize(value=min(value)) %>% # Maximum permissible values on immediate successors
-      transmute(node=destination,value=value) # Fix names
+      mutate(node=destination,value=value,.keep='none') # Fix names
     
     # Merge in the new results.  
     # Note that we might incur some duplicates if the graph is not a Hasse 
@@ -54,19 +54,41 @@ max_decreasing <- function(grph,fcn,root_nodes){
 
 # Compute a decomposition of an arbitrary function on the graph into a sum of
 # maximum monotonic (non-strictly) decreasing functions.
-# The function is defined on vertices in a table `fcn` with a `nodes` column
-# and `value` column.
-# Edges of the graph are defined by a table `grph` 
-# with rows `source` and `destination`
-# Note: this is only guaranteed to work if the graph is a directed acyclic graph
-# Cycles in the graph will cause this function to crash
-max_decreasing_decomp <- function(grph,fcn){
+#
+# Input: 
+# `fcn` : The function is defined on vertices in a table as follows:
+#   The vertices are defined by the column identified by `node_col`
+#   The values are in the column identified by `value_col`
+#  `grph` : The edges of the graph, a table 
+#    with columns `source` and `destination`
+# Output: Rebuilt `fcn` table with a new column and new rows
+#   `decomp` listing the new functions with values in `weight`
+#
+# Hint: you can pipeline the output of this function into 
+#  `pivot_wider(node_col,names_from=decomp,values_from=value_col)`
+# (replacing `node_col` and `value_col` with the appropriate column
+# names) to recover the original rows of `fcn` with the new functions as 
+# additional columns.
+#
+# This is only guaranteed to work if the graph is a directed acyclic graph
+# Caution: Cycles in the graph will cause this function to crash
+#
+# Caution: Do not name columns of `fcn` either `node` or `value`
+# as these are used internally
+max_decreasing_decomp <- function(fcn,grph,node_col,value_col){
+  
+  # For metaprogramming sanity, defuse the names
+  fcn_defused <- fcn %>%
+    mutate(node={{ node_col }},
+           value={{ value_col }}) %>%
+    select(-{{ node_col }}, -{{ value_col }})
   
   # Initial setup
   i <- 1
   grph_new <- grph
-  fcn_remaining <- fcn # This will be the remaining portion of the function left to decompose
-  fcn_new <- fcn %>% 
+  
+  fcn_remaining <- fcn_defused # This will be the remaining portion of the function left to decompose
+  fcn_new <- fcn_defused %>% 
     mutate(decomp='original')
   
   while(any(fcn_remaining$value>0)){
@@ -76,11 +98,12 @@ max_decreasing_decomp <- function(grph,fcn){
       slice_head()
     
     # Compute the maximum decreasing function bounded by what remains
-    md <- max_decreasing(grph_new,fcn_remaining,minimal)
+    md <- fcn_remaining %>% 
+      max_decreasing(grph_new,minimal)
     
     # Splice in zeros for the values outside the support of the current minimal element
     md <- md %>% 
-      bind_rows(fcn %>% 
+      bind_rows(fcn_defused %>% 
                   select(node) %>% 
                   anti_join(md,by=c(node='node')) %>%
                   mutate(value=0L))
@@ -98,7 +121,7 @@ max_decreasing_decomp <- function(grph,fcn){
       filter(decomp!='original',decomp!='root_count') %>% 
       group_by(node) %>% 
       summarize(value=sum(value)) %>%
-      left_join(fcn,by=c(node='node')) %>%
+      left_join(fcn_defused,by=c(node='node')) %>%
       mutate(value=value.y-value.x) %>%
       select(node,value)
     
@@ -111,16 +134,22 @@ max_decreasing_decomp <- function(grph,fcn){
     i <- i+1
   }
   
-  return(fcn_new)
+  # Recover old column names
+  fcn_new %>% 
+    mutate({{ node_col }}:=node,
+           {{ value_col }}:=value) %>%
+    select(-node,-value) %>%
+    return()
 }
+
 ## Generate weighted Dowker nested representation of the data
 # Input: df = data frame to be consumed
-#        feature_vars = the column in df for a tidy-select of variables 
+#        feature_cols = the column in df for a tidy-select of variables 
 #                       specifying features (this is the base space of )
-#        obs_vars = the column in df for a tidy-select of variables 
+#        obs_cols = the column in df for a tidy-select of variables 
 #                   specifying the observations
 # Output: a new data frame in which each row consists of several nested columns
-#       feature_pattern = values from left_var specifying each unique pattern of 
+#       feature_pattern = values from feature_cols specifying each unique pattern of 
 #                 features found in df
 #       observations = the observations that correspond to the feature pattern
 #       weight = length of feature
@@ -128,18 +157,18 @@ max_decreasing_decomp <- function(grph,fcn){
 # 
 # This function generates a minimal specification of the Dowker cosheaf 
 # representation, in which the 
-# * Base space vertices are the columns selected by feature_vars
-# * The costalks (fibers) are geneated by the columns selected by obs_vars
+# * Base space vertices are the columns selected by feature_cols
+# * The costalks (fibers) are geneated by the columns selected by obs_cols
 # Note: The costalks for the Dowker cosheaf can be computed from these data by 
 # taking the union of the observations associated with each feature pattern 
 # that is less restrictive
-dowker_nest <- function(df,feature_vars,obs_vars){
+dowker_nest <- function(df,feature_cols,obs_cols){
   df %>%
     ungroup() %>%
-    select({{feature_vars}},{{obs_vars}}) %>%
-    nest(feature_pattern={{feature_vars}}) %>%
+    select({{ feature_cols }},{{ obs_cols }}) %>%
+    nest(feature_pattern={{ feature_cols }}) %>%
     group_by(feature_pattern) %>%
-    nest(observations={{obs_vars}}) %>%
+    nest(observations={{ obs_cols }}) %>%
     mutate(weight=sapply(observations,function(x){nrow(x)}),
            feature_count=sapply(feature_pattern,function(x){nrow(x)})) %>%
     ungroup()
@@ -148,28 +177,28 @@ dowker_nest <- function(df,feature_vars,obs_vars){
 ## Compute Dowker posterior class probabilities from the output of dowker_nest
 # 
 # Input: df = output from dowker_nest
-#        class_var = one of the column names in obs_var (used previously in 
+#        class_col = one of the column names in obs_col (used previously in 
 #                    the call to dowker_nest) to identify classes of 
 #                    observations
 # Output: a new data frame with columns
 #        feature_pattern = same as the input df
 #        class_prob = nested column of tibbles containing two columns:
-#              class_var = as before
-#              prob      = posterior probability of class_var given 
+#              class_col = as before
+#              prob      = posterior probability of class_col given 
 #                          the feature_pattern
-dowker_prob <- function(df,class_var){
+dowker_prob <- function(df,class_col){
   df %>% 
     unnest(observations) %>% 
     group_by(feature_pattern) %>% 
-    count({{class_var}}) %>% 
-    transmute(feature_pattern,{{class_var}},prob=n/sum(n)) %>% 
-    nest(class_prob=c({{class_var}},prob)) %>% 
+    count({{ class_col }}) %>% 
+    mutate(feature_pattern,{{ class_col }},prob=n/sum(n),.keep='none') %>% 
+    nest(class_prob=c({{ class_col }},prob)) %>% 
     ungroup()
 }
 
 # Construct graph from weighted Dowker nested data
 # Input: a data frame in which each row consists of several nested columns
-#       feature_pattern = values from left_var specifying each unique pattern of 
+#       feature_pattern = values from feature_cols specifying each unique pattern of 
 #                 features found in df
 # Output: a new data frame with `source` and `destination` columns, both of 
 #        which have values taken from the `feature_pattern` column of the input
@@ -180,7 +209,7 @@ dowker_graph <- function(dowker_table){
        cross_df(tibble(source=feature_pattern,
                        destination=feature_pattern),
                 .filter=function(x,y){(nrow(x)>=nrow(y)) || 
-                    !any(nrow(anti_join(x,y,by=NULL))==0)}))
+                    !any(nrow(anti_join(x,y,by=names(x)))==0)}))
 }
 
 # Sample graph data
@@ -188,8 +217,8 @@ grph <- tibble(source=c('A','B','B','B','C','C','D','D','BC','BD','CD'),
                destination=c('AB','AB','BC','BD','BC','CD','BD','CD','BCD','BCD','BCD'))
 
 # Sample function data
-fcn <- tibble(node=c('A','B','C','D','E','AB','BC','BD','CD','BCD'),
-              value=c(3,5,2,4,8, 4,7,1,6, 2))
+fcn <- tibble(vertex=c('A','B','C','D','E','AB','BC','BD','CD','BCD'),
+              weight=c(3,5,2,4,8, 4,7,1,6, 2))
 
 # A correct decomposition
 fcn_decomp <- fcn %>% 
@@ -199,19 +228,20 @@ fcn_decomp <- fcn %>%
 
 # Verify the decomposition for sum: This should be TRUE
 fcn_decomp %>% 
-  mutate(test=((value-f1-f2-f3)==0)) %>%
+  mutate(test=((weight-f1-f2-f3)==0)) %>%
   summarize(all(test))
 
 # Verify the decomposition for ordering
 grph %>%
-  left_join(fcn_decomp,by=c(source='node')) %>%
-  left_join(fcn_decomp,by=c(destination='node')) %>%
+  left_join(fcn_decomp,by=c(source='vertex')) %>%
+  left_join(fcn_decomp,by=c(destination='vertex')) %>%
   mutate(test1=(f1.x>=f1.y),
          test2=(f2.x>=f2.y),
          test3=(f3.x>=f3.y))
 
 # Decompose function
-max_decreasing_decomp(grph,fcn) %>% pivot_wider(node,names_from=decomp,values_from=value)
+max_decreasing_decomp(fcn,grph,vertex,weight) %>% 
+  pivot_wider(vertex,names_from=decomp,values_from=weight)
 
 ##### A different example: 
 ##### byte statistics in ROM containing executable binary code for three 
@@ -225,14 +255,15 @@ data <- read_csv('uc07_rom_windows.csv') %>%
 
 dowker_table <- data %>% 
   filter(count>40)%>% # Determined by manual experimentation
-  dowker_nest(feature_vars = byte_value,obs_vars = byte_offset)
+  dowker_nest(feature_cols = byte_value,obs_cols = byte_offset)
 
 dg <- dowker_graph(dowker_table)
 
-dd <- max_decreasing_decomp(dg,
-                      dowker_table %>% transmute(node=feature_pattern,
-                                                 value=weight)) %>% 
-  pivot_wider(node,names_from=decomp,values_from=value)
+dd <- max_decreasing_decomp(dowker_table, 
+                      dg,
+                      feature_pattern, 
+                      weight) %>% 
+  pivot_wider(feature_pattern,names_from=decomp,values_from=weight)
 
 # Modification of the above example; instead of filtering for large byte counts directly,
 # aggregate them randomly first
@@ -245,14 +276,15 @@ dowker_table2 <- data %>%
   group_by(byte_offset,group) %>%
   summarize(count=sum(count)) %>%
   filter(count > 50) %>%
-  dowker_nest(feature_vars = group,obs_vars = byte_offset)
+  dowker_nest(feature_cols = group,obs_cols = byte_offset)
 
 dg2 <- dowker_graph(dowker_table2)
 
-dt2 <- dowker_table2 %>% transmute(node=feature_pattern,value=weight)
-
-dd2 <- max_decreasing_decomp(dg2,dt2) %>% 
-  pivot_wider(node,names_from=decomp,values_from=value)
+dd2 <- max_decreasing_decomp(dowker_table2,
+                             dg2,
+                             feature_pattern,
+                             weight) %>% 
+  pivot_wider(feature_pattern,names_from=decomp,values_from=weight)
 
 ##### CSV data example
 
@@ -269,19 +301,21 @@ data_csv_rel %>%
   geom_bin_2d()
 
 csv_dowker_table <- data_csv_rel %>%
-    dowker_nest(feature_vars=feature,
-                obs_vars = FILEHASH)
+    dowker_nest(feature_cols=feature,
+                obs_cols = FILEHASH)
 
 csv_dg <- dowker_graph(csv_dowker_table)
 
-csv_dt <- csv_dowker_table %>% transmute(node=feature_pattern,value=weight)
-
-csv_dd <- max_decreasing_decomp(csv_dg,csv_dt) %>% 
-  pivot_wider(node,names_from=decomp,values_from=value)
+csv_dd <- max_decreasing_decomp(csv_dowker_table,
+                                csv_dg,
+                                feature_pattern,
+                                weight) %>% 
+  pivot_wider(feature_pattern,names_from=decomp,values_from=weight)
 
 csv_dd %>% 
-  mutate(feature_pattern=map(node,~str_flatten(.$feature,collapse=' '))%>%unlist) %>%
-  select(-node) %>%
+  mutate(feature_pattern=map(feature_pattern,
+                             ~str_flatten(.$feature,collapse=' '))%>%unlist) %>%
+  select(-feature_pattern) %>%
   write_csv('CSVfilters_decomp.csv')
 
 # igraph drawing
@@ -290,21 +324,22 @@ csv_dd %>%
 ## more natural to use R lists instead.  We therefore need to do a bit of 
 ## translation in order to construct the graph.
 
-csv_dt_ind <- csv_dt %>% 
+csv_dt_ind <- csv_dowker_table %>% 
   mutate(idx=row_number())
 
 csv_dg_ind <- csv_dg %>% 
-  left_join(csv_dt_ind %>% select(-value), by=c(source='node')) %>%
+  left_join(csv_dt_ind %>% select(-weight), by=c(source='feature_pattern')) %>%
   transmute(destination=destination,
             source=idx) %>%
-  left_join(csv_dt_ind %>% select(-value), by=c(destination='node')) %>%
+  left_join(csv_dt_ind %>% select(-weight), by=c(destination='feature_pattern')) %>%
   transmute(source=source,
             destination=idx)
 
 csv_dg_ig <- make_empty_graph() +
   vertices(csv_dt_ind$idx,
-           label=map(csv_dt$node,~str_flatten(.$feature,collapse=' ')),
-           size=3*log10(csv_dt$value)) +
+           label=map(csv_dowker_table$feature_pattern,
+                     ~str_flatten(.$feature,collapse=' ')),
+           size=3*log10(csv_dowker_table$weight)) +
   graph_from_data_frame(csv_dg_ind)
 
 ## Expect to do some manual adjustment...
