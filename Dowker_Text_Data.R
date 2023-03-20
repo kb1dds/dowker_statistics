@@ -22,6 +22,7 @@ p_load(gutenbergr, tidyverse, tm, tidytext, ggthemes)
 # Use Gutenberg book data
 gutenberg_metadata <- gutenberg_metadata
 
+# save as csv file 
 # "gutenberg_download" function is to download works using a project Gutenberg ID.
 # Use gutenberg text data topics in Politics, Art, Biology, Cookery, Travel and combine them together:
 gutenberg_15books <- gutenberg_download(c(5669, 147, 17306, 4776, 3207, 20125, 35894, 9596, 1341, 151, # Politics 10 
@@ -41,7 +42,15 @@ gutenberg_15books <- gutenberg_download(c(5669, 147, 17306, 4776, 3207, 20125, 3
 ## 1.2 - Documents, Topics (2 columns)                                                                                ----
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+data <- gutenberg_15books %>% 
+  mutate(Topics = case_when(
+  gutenberg_id %in% c(5669, 147, 17306, 4776, 3207, 20125, 35894, 9596, 1341, 151, 7370, 612, 18, 2130, 6762, 1232, 20433, 39622, 34111, 15509) ~ "Politics",
+  gutenberg_id %in% c(34645, 2176, 5000, 11242, 17408, 38532, 45504, 29904, 2398, 17373, 167, 20195, 3226, 5321, 3751, 5712, 13119, 16180, 17244, 22564) ~ "Art",
+  gutenberg_id %in% c(1909, 2089, 2927, 20818, 18911, 6329, 14473, 27778, 2009, 4962, 17966, 6052, 13249, 23755, 18350, 22764, 2938, 16410, 18884, 24456) ~ "Biology",
+  gutenberg_id %in% c(10011, 24384, 13265, 25631, 15019, 26032, 12815, 24205, 33974, 29730, 24542, 25007, 31534, 27245, 6978, 6429, 26558, 29329, 6385, 34822) ~ "Cookery", 
+  gutenberg_id %in% c(944, 1082, 3177, 3704, 6317, 39496, 12422, 15777, 22117, 28323,39806, 39685, 39615, 39474, 39308, 39082, 39026, 38203, 27250, 22409) ~ "Travel", 
+  TRUE ~ NA_character_ # for cases not covered by any of the above conditions
+))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ##
@@ -49,13 +58,13 @@ gutenberg_15books <- gutenberg_download(c(5669, 147, 17306, 4776, 3207, 20125, 3
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-book_words <- gutenberg_15books %>%  
+book_words <- data %>%  
   unnest_tokens(word, text) %>%  
-  count(gutenberg_id, word, sort = TRUE) %>%  
+  count(Topics, gutenberg_id, word, sort = TRUE) %>%  
   ungroup()
 
 total_words <- book_words %>%  
-  group_by(gutenberg_id) %>%  
+  group_by(Topics, gutenberg_id) %>%  
   summarize(total = sum(n))
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -79,75 +88,23 @@ stop_words <- removeNumbers(stop_words_tf_idf$word) # remove numbers
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-gutenberg_15books %>% 
-  group_by(gutenberg_id) %>% 
+data %>% 
+  group_by(gutenberg_id, Topics) %>% 
   slice_sample(n=500, replace = TRUE) %>% 
   unnest_tokens(word, text) %>%  
   summarize(text = reduce(word, paste)) -> books
 
-
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ##
-## 5-  Identify Topics Using Logical Values                                                                                ----
-##
-## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-books %>%  
-  mutate(politics = books$gutenberg_id == 5669| books$gutenberg_id == 147| books$gutenberg_id ==17306| 
-           books$gutenberg_id ==4776| books$gutenberg_id ==3207 | books$gutenberg_id == 20125 | 
-           books$gutenberg_id == 35894 | books$gutenberg_id == 9596 | books$gutenberg_id == 1341| 
-           books$gutenberg_id == 151 | books$gutenberg_id ==7370 | books$gutenberg_id == 612| 
-           books$gutenberg_id == 18| books$gutenberg_id == 2130| books$gutenberg_id == 6762| 
-           books$gutenberg_id==1232| books$gutenberg_id== 20433| books$gutenberg_id==39622| 
-           books$gutenberg_id==34111| books$gutenberg_id==15509) %>%  
-  mutate(art = books$gutenberg_id == 34645| books$gutenberg_id == 2176|books$gutenberg_id ==5000| 
-           books$gutenberg_id ==11242| books$gutenberg_id ==17408| books$gutenberg_id == 38532| 
-           books$gutenberg_id == 45504| books$gutenberg_id == 29904| books$gutenberg_id == 2398| 
-           books$gutenberg_id == 17373| books$gutenberg_id== 167| books$gutenberg_id== 20195| books$gutenberg_id== 3226|
-           books$gutenberg_id== 5321| books$gutenberg_id== 3751| books$gutenberg_id== 5712| books$gutenberg_id== 13119|
-           books$gutenberg_id== 16180| books$gutenberg_id== 17244|books$gutenberg_id==22564) %>% 
-  mutate(biology = books$gutenberg_id == 1909| books$gutenberg_id == 2089|books$gutenberg_id ==2927| 
-           books$gutenberg_id ==20818| books$gutenberg_id ==18911| books$gutenberg_id == 6329| 
-           books$gutenberg_id == 14473| books$gutenberg_id == 27778| books$gutenberg_id == 2009| 
-           books$gutenberg_id == 4962| books$gutenberg_id== 17966| books$gutenberg_id== 6052| books$gutenberg_id== 13249|
-           books$gutenberg_id== 23755| books$gutenberg_id== 18350| books$gutenberg_id== 22764| books$gutenberg_id== 2938|
-           books$gutenberg_id== 16410| books$gutenberg_id== 18884|books$gutenberg_id==24456) %>%  
-  mutate(cookery = books$gutenberg_id == 10011| books$gutenberg_id == 24384|books$gutenberg_id ==13265| 
-           books$gutenberg_id ==25631| books$gutenberg_id ==15019| books$gutenberg_id == 26032| 
-           books$gutenberg_id == 12815| books$gutenberg_id == 24205| books$gutenberg_id == 33974| 
-           books$gutenberg_id == 29730| books$gutenberg_id== 24542| books$gutenberg_id== 25007| books$gutenberg_id== 31534|
-           books$gutenberg_id== 27245| books$gutenberg_id== 6978| books$gutenberg_id== 6429| books$gutenberg_id== 26558|
-           books$gutenberg_id== 29329| books$gutenberg_id== 6385|books$gutenberg_id==34822)-> books 
-
-books %>%  
-  filter(politics == TRUE) -> books_politics 
-books %>%  
-  filter(art == TRUE) -> books_art 
-books %>%  
-  filter(biology == TRUE) -> books_biology 
-books %>%  
-  filter(cookery == TRUE) -> books_cookery
-books %>% 
-  filter(politics == FALSE & art == FALSE & biology == FALSE & cookery == FALSE) -> books_travel
-
-books_politics %>%  
-  rbind(books_art) %>%  
-  rbind(books_biology) %>%  
-  rbind(books_cookery) %>%  
-  rbind(books_travel) -> logical_full_books
-
-
-## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-##
-## 6-  Convert this text to a corpus   ----
+## 5-  Convert this text to a corpus   ----
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ## Use different way 
 
 # Make a vector source from text (Convert vector to a Source object)
-books_source <- VectorSource(logical_full_books$text)
+books_source <- VectorSource(books$text)
 books_corpus <- VCorpus(books_source)
-books_corpus
 
 # Function that cleans corpus: 
 clean_corpus <- function(corpus) {
@@ -585,6 +542,7 @@ dowker_prob <- function(df,class_var){
 
 dowker_prob(books_dowker_nest, topics) -> df_df
 
+# dowker_graph in dowker split
 
 
 
