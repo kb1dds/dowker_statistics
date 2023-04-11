@@ -7,6 +7,13 @@ Any opinions, findings and conclusions or recommendations expressed in
 this material are those of the authors and do not necessarily reflect the 
 views of DARPA.
 
+## Dependency notes
+
+Most everything can be installed with `install.packages` from CRAN.
+The only exception is the `relations.kappa` function, which is from 
+[https://github.com/kpewing/relations].  If not desired, the code chunk in
+question in `nitf_demo.R` can be skipped.
+
 # Workflows to be supported
 
 ## Explanation workflow
