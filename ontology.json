@@ -1,0 +1,682 @@
+{
+  "1": {
+    "error_regex": "retc_error",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "2": {
+    "error_regex": "unblock_image: Can't handle nbpp \\(number bits per pixel\\) of \\d+",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "3": {
+    "error_regex": "Notice: image \\d+ is blocked, but this software is unable to unblock\\.  Extracting in raw \\(unmodified, still blocked\\) format\\.",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "4": {
+    "error_regex": "Error reading image sub\\-header",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "5": {
+    "error_regex": "NOTE: NITF Main file header TREs stored in a DES\\.  Extraction not implemented at this time\\.",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "6": {
+    "error_regex": "extract: Error allocating memory for main file header extended data",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "7": {
+    "error_regex": "File /[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+ is not an NITF file",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "8": {
+    "error_regex": "extract: Error allocating memory for main file header user defined data",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "9": {
+    "error_regex": "Error reading NITF image subheader",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "10": {
+    "error_regex": "Error reading DES sub\\-header",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "11": {
+    "error_regex": "DFPFillinField for .*: Error \\- Loop/Condition Node '.*' Number Of Items = .* Couldn't find reference .*",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "12": {
+    "error_regex": "user defined data length = \\d+",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "13": {
+    "error_regex": "Error reading main file header user def\\. header data length ",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "14": {
+    "error_regex": "ReadDefinitionFile: Error opening file .*",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "15": {
+    "error_regex": "Error reading text data",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "16": {
+    "error_regex": "txsofl = \\d+ \nError reading NITF text subheader",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "17": {
+    "error_regex": "DFPGetLoopCondInfo: Trying to get the number of times to loop, but p\\->pFieldValue is not a number\\. \\(p\\->FieldName = .*,?",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "18": {
+    "error_regex": "NOTE: NITF Main header TREs stored in a DES\\.  Extraction not implemented at this time\\.",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "19": {
+    "error_regex": "malloc\\(\\): invalid size \\(unsorted\\)",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "20": {
+    "error_regex": "Error reading graphic user\\-defined fields",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "21": {
+    "error_regex": "Error reading header.*",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "22": {
+    "error_regex": "Error reading main header",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "23": {
+    "error_regex": "DFPExportData: Error opening output filename: .*",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "24": {
+    "error_regex": "unblock_image: Right padding width is negative .* pixels wide\\.",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "25": {
+    "error_regex": "Error allocating memory for i\\d+hdr\\[image_num\\]\\.udid",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "26": {
+    "error_regex": "Error reading DES user\\-defined fields",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "27": {
+    "error_regex": "Error reading symbol data",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "28": {
+    "error_regex": "Error: Masked images aren't implemented yet\\.",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "29": {
+    "error_regex": "WARNING \\- increased image width by \\d+ to make the width even\\.",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "30": {
+    "error_regex": "Error \\- Masked images aren't implemented yet\\.",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "31": {
+    "error_regex": "Error \\- image \\d+ is blocked, but this software is unable to unblock\\.  Extracting in raw blocked format\\.",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "32": {
+    "error_regex": "Error reading NITF symbols subheader",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "33": {
+    "error_regex": "Error reading main file header extended header data length",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "34": {
+    "error_regex": "Warning: DFPGetLoopCondInfo: Null found for \\# times to loop, using .*\\.",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "35": {
+    "error_regex": "unblock_image: Error reading input file\\.  Returned \\d+, not \\d+",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "36": {
+    "error_regex": "dump main header: error allocating memory",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "37": {
+    "error_regex": "Error reading, read returned .*\\. \\(start = .*, read length = .*, file_length = .*",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "38": {
+    "error_regex": "Error reading text sub\\-header",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "39": {
+    "error_regex": "Error reading graphic sub\\-header",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "40": {
+    "error_regex": "Error reading symbols sub\\-header",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "41": {
+    "error_regex": "unblock_image: Can't handle data with a block width that's not an even multiple of a byte \\(\\d+\\.\\d+ bytes wide\\)",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "42": {
+    "error_regex": "error reading header \\(\\# extension segs",
+    "parser": "afrl",
+    "taxonomy": []
+  },
+  "43": {
+    "error_regex": "retc_error",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "44": {
+    "error_regex": "\\[main\\] INFO  \\- Storing \\d+ bytes in heap space\\.",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "45": {
+    "error_regex": "Exception in thread \"main\" java\\.lang\\.NoClassDefFoundError: org(?:/[a-zA-Z\\d\\-]+)+/[A-Fa-f\\d]+ommons/lang\\d+/StringUtils\nCaused by: java\\.lang\\.ClassNotFoundException: org\\.apache\\.commons\\.lang\\d+\\.StringUtils\n\t\\.\\.\\. \\d+ more",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "46": {
+    "error_regex": "Parse error\n: Bad Long format.*",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "47": {
+    "error_regex": "\\[main\\] ERROR  \\- Symbol LUT only permitted for Symbol Type B with Symbol Colour G or C\\.\n: Symbol LUT only permitted for Symbol Type B with Symbol Colour G or C\\.",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "48": {
+    "error_regex": "\\[main\\] WARN  \\- Mismatch while reading ENCRYP",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "49": {
+    "error_regex": "(?:\\[main\\] ERROR )?[A-Za-z][A-Za-z0-9]+(?:\\.[A-Za-z][A-Za-z0-9]+)+(?: -|:) Incorrect format for .* flag while DMS parsing: .*",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "50": {
+    "error_regex": "Parse error\n: Need to set NITF file type prior to reading dates",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "51": {
+    "error_regex": "\\[main\\] WARN  \\- IO Exception reading raw bytes\njava\\.io\\.EOFException",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "52": {
+    "error_regex": "\\[main\\] ERROR  \\- Bad Integer format.*\n: Bad Integer format.*",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "53": {
+    "error_regex": "Exception in thread \"main\" java\\.lang\\.OutOfMemoryError: Java heap space",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "54": {
+    "error_regex": "\\[main\\] WARN  \\- Invalid NITF date time value: '.*'",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "55": {
+    "error_regex": "\\[main\\] ERROR  \\- Missing '.*' magic header, got '.*'\n: Missing '.*' magic header, got '.*'",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "56": {
+    "error_regex": "java\\.text\\.ParseException: Supplied argument '.*' is not a valid UTM/UPS formatted String\\.",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "57": {
+    "error_regex": "\\[main\\] ERROR  \\- Bad Integer format.*\n\\]\n: Bad Integer format.*\n\\]",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "58": {
+    "error_regex": "Parse error\n: Unexpected SFH_DELIM\\d+ value read from file",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "59": {
+    "error_regex": "Parse error\n",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "60": {
+    "error_regex": "\\[main\\] ERROR  \\- Bad Long format.*\n: Bad Long format.*",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "61": {
+    "error_regex": "\\[main\\] WARN  \\- Unhandled date format:  \\d+",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "62": {
+    "error_regex": "Parse error\n: Bad Integer format.*\n\\]",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "63": {
+    "error_regex": "\\[main\\] WARN  \\- Unknown NITF file type while reading date: UNKNOWN",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "64": {
+    "error_regex": "Parse error\njava\\.lang\\.NegativeArraySizeException: \\-1\\d+",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "65": {
+    "error_regex": "\\[main\\] WARN .*CoordinateUtility \\- UTM input value: '.*' could not be parsed\\.",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "66": {
+    "error_regex": "(?:\\[main\\] ERROR )?[A-Za-z][A-Za-z0-9]+(?:\\.[A-Za-z][A-Za-z0-9]+)+(?: -|:) Error reading from NITF file: .*",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "67": {
+    "error_regex": "Parse error\njava\\.lang\\.UnsupportedOperationException: IMPLEMENT RES PARSING",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "68": {
+    "error_regex": "Parse error\n: Bad Integer format.*",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "69": {
+    "error_regex": "Parse error\n: Unexpected ENCRYP value",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "70": {
+    "error_regex": "\\[main\\] ERROR  \\- Unexpected ENCRYP value\n: Unexpected ENCRYP value",
+    "parser": "codice",
+    "taxonomy": []
+  },
+  "71": {
+    "error_regex": "retc_error",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "72": {
+    "error_regex": "ERROR .*: Unable to open JPEG image within NITF file\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "73": {
+    "error_regex": "ERROR \\d+: Image header too small",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "74": {
+    "error_regex": "Warning \\d+: Attribute subsection not large enough \\(\\d+ bytes\\) to contain \\d+ attributes\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "75": {
+    "error_regex": "ERROR \\d+: Not enough bytes to read segment count",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "76": {
+    "error_regex": "ERROR \\d+: Cannot read \\d+ bytes for NITF header",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "77": {
+    "error_regex": "Warning \\d+: Unknown marker\nERROR \\d+: Unable to open JPEG\\d+ image within NITF file\\.\nOne or several JPEG\\d+ capable drivers are available but the datastream could not be opened successfully\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "78": {
+    "error_regex": "ERROR \\d+: Invalid band number",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "79": {
+    "error_regex": "Warning .*: Unsupported combination of .* and .*\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "80": {
+    "error_regex": "Warning \\d+: Ignoring NITF RPF Location table since it seems to be corrupt\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "81": {
+    "error_regex": "ERROR .*: Invalid segment header size : .*",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "82": {
+    "error_regex": "ERROR \\d+: `/[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+' not recognized as a supported file format\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "83": {
+    "error_regex": "Warning \\d+: Some IGEOLO points are in different UTM",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "84": {
+    "error_regex": "Warning \\d+: Failed to find spatial data location, guessing\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "85": {
+    "error_regex": "ERROR .*: libjpeg: Unsupported JPEG data precision .*",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "86": {
+    "error_regex": "ERROR \\d+: NITF header too small",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "87": {
+    "error_regex": "You can define the NITF_OPEN_UNDERLYING_DS configuration option to NO, in order to just get the metadata\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "88": {
+    "error_regex": "ERROR \\d+: Unable to read header length from NITF file\\.  File is either corrupt\nor empty\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "89": {
+    "error_regex": "Warning \\d+: Unsupported IC value 'M\\d+', image access will likely fail\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "90": {
+    "error_regex": "ERROR .*: Invalid segment size : .*",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "91": {
+    "error_regex": "ERROR .*: Cannot read .* Not enough bytes : remaining .*, expected .*",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "92": {
+    "error_regex": "ERROR \\d+: Failed to read \\d+ byte image subheader from \\d+\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "93": {
+    "error_regex": "ERROR \\d+: Invalid zone: \\d+",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "94": {
+    "error_regex": "ERROR \\d+: Not enough bytes to read segment info",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "95": {
+    "error_regex": "supported by GDAL, ignoring IGEOLO\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "96": {
+    "error_regex": "Warning \\d+: LUT for band \\d+ is corrupted : nSignificantLUTEntries=\\d+\\. Truncating to \\d+",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "97": {
+    "error_regex": "ERROR \\d+: Image header too small \\(called from line \\d+\\)",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "98": {
+    "error_regex": "Warning \\d+: Failed to read graphic subheader at \\d+\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "99": {
+    "error_regex": "Warning \\d+: The file /[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+ appears to be an NITF file, but no image blocks were found on it\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "100": {
+    "error_regex": "ERROR \\d+: Invalid values for block dimension/number",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "101": {
+    "error_regex": "Warning \\d+: Cannot read User TRE\\. First tag's length is invalid",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "102": {
+    "error_regex": "gdalinfo failed \\- unable to open '.*'\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "103": {
+    "error_regex": "ERROR .*: NITF Header Length \\(.*\\) seems to be corrupt\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "104": {
+    "error_regex": "The JPEG driver is available but the datastream could not be opened successfully\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "105": {
+    "error_regex": "ERROR \\d+: Unable to open JPEG\\d+ image within NITF file\\.\nOne or several JPEG\\d+ capable drivers are available but the datastream could not be opened successfully\\.",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "106": {
+    "error_regex": "zones, but this configuration isn't currently",
+    "parser": "gdal",
+    "taxonomy": []
+  },
+  "107": {
+    "error_regex": "retc_error",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "108": {
+    "error_regex": "/[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+: no parse",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "109": {
+    "error_regex": "VIOLATION\\[X\\]@XX \\(0xXX\\): File header length does not match actual, larger than reported: \\d+ \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "110": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Invalid file header length \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "111": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Invalid number of text segments \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "112": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Invalid number of data segments \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "113": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Invalid file length in header \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "114": {
+    "error_regex": "VIOLATION\\[X\\]@XX \\(0xXX\\): File header length does not match actual, less than reported: \\d+ \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "115": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Invalid number of image segments \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "116": {
+    "error_regex": "VIOLATION\\[X\\]@XX \\(0xXX\\): STREAMING_FILE_HEADER not yet implemented \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "117": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Junk data at end of file \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "118": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Profile is not NITF \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "119": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Invalid number of graph segments \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "120": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Unrecognized header type \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "121": {
+    "error_regex": "VIOLATION\\[\\d+\\]@\\d+ \\(0x[A-Fa-f\\d]+\\): Invalid number of reserved segments \\(severity=\\d+\\)",
+    "parser": "hammer_nitf",
+    "taxonomy": []
+  },
+  "122": {
+    "error_regex": "retc_error",
+    "parser": "kaitai",
+    "taxonomy": []
+  },
+  "123": {
+    "error_regex": "ValueError: invalid literal for int\\(\\) with base.*'",
+    "parser": "kaitai",
+    "taxonomy": []
+  },
+  "124": {
+    "error_regex": "kaitaistruct\\.ValidationNotEqualError: .* at pos .*: validation failed: not equal, expected .*, but got .*",
+    "parser": "kaitai",
+    "taxonomy": []
+  },
+  "125": {
+    "error_regex": "UnicodeDecodeError: 'utf\\-8' codec can't decode byte .* in position .*: invalid continuation byte",
+    "parser": "kaitai",
+    "taxonomy": []
+  },
+  "126": {
+    "error_regex": "UnicodeDecodeError: 'utf\\-8' codec can't decode bytes in position .*: invalid continuation byte",
+    "parser": "kaitai",
+    "taxonomy": []
+  },
+  "127": {
+    "error_regex": "EOFError: requested \\d+ bytes, but only \\d+ bytes available",
+    "parser": "kaitai",
+    "taxonomy": []
+  },
+  "128": {
+    "error_regex": "retc_error",
+    "parser": "nitro",
+    "taxonomy": []
+  },
+  "129": {
+    "error_regex": "\\(/[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+, \\d+, readField\\): \\[\\] 'Unable to read from IO object' \n",
+    "parser": "nitro",
+    "taxonomy": []
+  },
+  "130": {
+    "error_regex": "\\(/[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+, \\d+, readDESubheader\\): \\[\\] 'DE subheader \\d+ expected to have length \\d+, but read \\d+ bytes' \n",
+    "parser": "nitro",
+    "taxonomy": []
+  },
+  "131": {
+    "error_regex": "show_nitf\\+\\+: /[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+:\\d+: readField: Assertion `fld != NULL' failed\\.",
+    "parser": "nitro",
+    "taxonomy": []
+  },
+  "132": {
+    "error_regex": "\\(/[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+, \\d+, readHeader\\): \\[\\] 'Streaming headers are not supported' \n",
+    "parser": "nitro",
+    "taxonomy": []
+  },
+  "133": {
+    "error_regex": "\\(/[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+, \\d+, readHeader\\): \\[\\] 'NITF header expected to have length \\d+, but read \\d+ bytes' \n",
+    "parser": "nitro",
+    "taxonomy": []
+  },
+  "134": {
+    "error_regex": "\\(, \\d+, \\): \\[\\] '' \n",
+    "parser": "nitro",
+    "taxonomy": []
+  },
+  "135": {
+    "error_regex": "\\(/[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+, \\d+, readImageSubheader\\): \\[\\] 'Image subheader \\d+ expected to have length \\d+, but read \\d+ bytes' \n",
+    "parser": "nitro",
+    "taxonomy": []
+  },
+  "136": {
+    "error_regex": "show_nitf\\+\\+: /[a-zA-Z\\d _\\\\.\\-\\(\\):/,+]+\\.[a-zA-Z\\d]+:\\d+: void showImageSubheader\\(const nitf::ImageSubheader\\&\\): Assertion `false' failed\\.",
+    "parser": "nitro",
+    "taxonomy": []
+  }
+}
