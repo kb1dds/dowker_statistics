@@ -1,4 +1,4 @@
-# Dowker tool demonstration script
+# Dowker tool demonstration script: NITF files
 #
 #Copyright (c) 2023 Michael Robinson
 #
@@ -13,28 +13,37 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations under
 # the License.
+#
+# Special thanks to: Cory Anderson, Denley Lam, Letitia Li
+# 
+# Data credit: DARPA SafeDocs Test and Evaluation Team, including BAE Systems,
+# NASA JPL and the PDF Association, Inc.
+#
+# This material is based upon work supported by the Defense Advanced Research 
+# Projects Agency (DARPA) SafeDocs program under contract HR001119C0072. 
+# Any opinions, findings and conclusions or recommendations expressed in 
+# this material are those of the authors and do not necessarily reflect the 
+# views of DARPA.
 
 library(tidyverse)
-library(reticulate)
 library(jsonlite)
 library(plotly)
-np<-import('numpy') # Needed to parse the npz files from BAE
 
 # Bring in the tools!
-source('~/robinson-hackathon-6/eval_data_tools.R')
+source('dowker_data_tools.R')
 
 # Load the data
 
 ## BAE regexes
-nitf_bae_names <- read_table('~/robinson-hackathon-6/nitf-filelist.txt',col_names = 'filenm') %>%
+nitf_bae_names <- read_table('nitf-filelist.txt',col_names = 'filenm') %>%
   mutate(file=row_number())
 
-nitf_raw_bae <- npz_error_matrix_reader('robinson-hackathon-6/error_matrix2.npz')
+nitf_raw_bae <- npz_error_matrix_reader('error_matrix2.npz')
 nitf_bae <- nitf_raw_bae$matrix %>% mutate(regex=as.factor(regex)) %>%
   left_join(nitf_bae_names,by=c(file='file')) %>%
   select(-file)  # We are going to replace these indices by the crashes one below; it is more complete
 
-json <- fromJSON('~/robinson-hackathon-6/ontology.json')
+json <- fromJSON('ontology.json')
 regex_ontology <- tibble(regex=names(json),
                          value=json) %>% 
   mutate(regex=as.factor(as.integer(regex))) %>%
@@ -45,7 +54,7 @@ regex_ontology <- tibble(regex=names(json),
   select(-taxonomy)
 
 ## NITF file names
-nitf_crashes_names <- read_delim('~/robinson-hackathon-6/nitf.list',delim=',',col_names='filename') %>%
+nitf_crashes_names <- read_delim('nitf.list',delim=',',col_names='filename') %>%
   mutate(subcorpus=map(filename,~str_split(.,'/')%>%
                          unlist()%>%
                          pluck(5))%>%
@@ -60,7 +69,7 @@ nitf_crashes_names <- read_delim('~/robinson-hackathon-6/nitf.list',delim=',',co
          file=row_number())
 
 ## Crash log + GDAL
-nitf_crashes <- read_delim('~/robinson-hackathon-6/crash.out',col_names=c('parser','jnk','filename')) %>%
+nitf_crashes <- read_delim('crash.out',col_names=c('parser','jnk','filename')) %>%
   mutate(subcorpus=map(filename,~str_split(.,'/')%>%
                          unlist()%>%
                          pluck(5))%>%
