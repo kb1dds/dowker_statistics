@@ -24,16 +24,16 @@ Optional
 
 To generate a default dowker for the NITF files, run:
 ```
-python errorMatrixToDowker_v1.py artifacts/nitf_error_matrix.npz nitf -o <output directoyr> -swap -default 
+python errorMatrixToDowker.py artifacts/nitf_error_matrix.npz nitf -o <output directoyr> -swap -default 
 ```
 If you want to choose your own customizations, skip the '-default' flag:
 ```
-python errorMatrixToDowker_v1.py artifacts/nitf_error_matrix.npz nitf -o <output directoyr> -swap 
+python errorMatrixToDowker.py artifacts/nitf_error_matrix.npz nitf -o <output directoyr> -swap 
 ```
 
 To generate a larger dowker (this will take a few minutes), use the goodA error matrix:
 ```
-python errorMatrixToDowker_v1.py artifacts/goodA_error_matrix.npz nitf -o <output directoyr> -swap -default 
+python errorMatrixToDowker.py artifacts/goodA_error_matrix.npz nitf -o <output directoyr> -swap -default 
 ```
 You should get the figure below:
 
