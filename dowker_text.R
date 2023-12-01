@@ -136,7 +136,6 @@ dowker_nest <- function(df,feature_vars,obs_vars){
     ungroup()
 } 
 
-
 # Apply Dowker Complex function to books_nonzero 
 books_nonzero %>%  
   as_tibble() %>%  
@@ -178,70 +177,31 @@ for (i in 1:nrow(books_dowker_nest)) {
 
 # Add difference column 
 books_dowker_nest %>%  
-  mutate(difference = max - median) -> books_dowker_nest
-
-# probability of each topic by full count
-books_dowker_nest %>%  
-  mutate(prob_art = art_count/feature_count) %>%  
+  mutate(difference = max - median)  %>%  # add difference column
+  mutate(prob_art = art_count/feature_count) %>%  # probability of each topic by full count
   mutate(prob_biology = biology_count/feature_count)  %>%  
   mutate(prob_politics = politics_count/feature_count) %>%  
   mutate(prob_cookery = cookery_count/feature_count) %>%  
-  mutate(prob_travel = travel_count/feature_count)-> books_dowker_nest
+  mutate(prob_travel = travel_count/feature_count)  %>%  
+  mutate(score = weight*feature_count) -> books_dowker_nest # add score column 
 
-#  add score column 
-books_dowker_nest %>%  
-  mutate(score = weight*feature_count) -> books_dowker_nest
+# Function to get words based on probability threshold
+get_category_words <- function(data, prob_threshold, category_column, books_nonzero) {
+  data %>%
+    filter({{ category_column }} > prob_threshold) %>%
+    select(observations) %>%
+    unnest(observations) %>%
+    left_join(books_nonzero %>% as_tibble(rownames = "Word")) %>%
+    select("Word") %>%
+    unique()
+}
 
-# art words
-books_dowker_nest %>%  
-  filter(prob_art > 0.9) %>%  
-  select(observations) %>%  
-  unnest(observations) %>%  
-  left_join(books_nonzero %>%  
-              as_tibble(rownames = "Word")) %>%  
-  select("Word") %>%  
-  unique() -> art_words
-
-# biology words
-books_dowker_nest %>%  
-  filter(prob_biology > 0.9) %>%  
-  select(observations) %>%  
-  unnest(observations) %>%  
-  left_join(books_nonzero %>%  
-              as_tibble(rownames = "Word")) %>%  
-  select("Word") %>%  
-  unique() -> biology_words
-
-# politics words
-books_dowker_nest %>%  
-  filter(prob_politics > 0.9) %>%  
-  select(observations) %>%  
-  unnest(observations) %>%  
-  left_join(books_nonzero %>%  
-              as_tibble(rownames = "Word")) %>%  
-  select("Word") %>%  
-  unique() -> politics_words
-
-# cookery words
-books_dowker_nest %>%  
-  filter(prob_cookery > 0.9) %>%  
-  select(observations) %>%  
-  unnest(observations) %>%  
-  left_join(books_nonzero %>%  
-              as_tibble(rownames = "Word")) %>%  
-  select("Word") %>%  
-  unique() -> cooker_words
-
-# politics words
-books_dowker_nest %>%  
-  filter(prob_travel > 0.9) %>%  
-  select(observations) %>%  
-  unnest(observations) %>%  
-  left_join(books_nonzero %>%  
-              as_tibble(rownames = "Word")) %>%  
-  select("Word") %>%  
-  unique() -> travel_words
-
+# Get words for each category
+art_words <- get_category_words(books_dowker_nest, 0.9, prob_art, books_nonzero)
+biology_words <- get_category_words(books_dowker_nest, 0.9, prob_biology, books_nonzero)
+politics_words <- get_category_words(books_dowker_nest, 0.9, prob_politics, books_nonzero)
+cooker_words <- get_category_words(books_dowker_nest, 0.9, prob_cookery, books_nonzero)
+travel_words <- get_category_words(books_dowker_nest, 0.9, prob_travel, books_nonzero)
 
 books_dowker_nest %>%  
   select(c("observations", "weight", "difference", "score", "feature_count", "feature_pattern", "prob_art", "prob_politics", "prob_biology", "prob_cookery", "prob_travel")) %>%  
