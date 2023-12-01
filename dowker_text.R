@@ -8,7 +8,7 @@ library(ggthemes)
 # Use Gutenberg book data
 gutenberg_metadata <- gutenberg_metadata
 
-# Download 100 data
+# Download 100 data -> change it to more efficient way 
 gutenberg_15books <- gutenberg_download(c(5669, 147, 17306, 4776, 3207, 20125, 35894, 9596, 1341, 151, # Politics 10 
                                           7370, 612, 18, 2130, 6762, 1232, 20433, 39622, 34111, 15509, # Politics 20
                                           34645, 2176, 5000, 11242, 17408, 38532, 45504, 29904, 2398, 17373, # Art 10
