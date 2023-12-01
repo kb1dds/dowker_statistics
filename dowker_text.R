@@ -47,62 +47,30 @@ gutenberg_15books %>%
   summarize(text = reduce(word, paste)) -> books
 
 # identify topics using logical values
-books %>%  
-  mutate(politics = books$gutenberg_id == 5669| 
-           books$gutenberg_id == 147| 
-           books$gutenberg_id ==17306| 
-           books$gutenberg_id ==4776| 
-           books$gutenberg_id ==3207 | 
-           books$gutenberg_id == 20125 | 
-           books$gutenberg_id == 35894 | 
-           books$gutenberg_id == 9596 | 
-           books$gutenberg_id == 1341| 
-           books$gutenberg_id == 151 | 
-           books$gutenberg_id ==7370 | 
-           books$gutenberg_id == 612| 
-           books$gutenberg_id == 18|
-           books$gutenberg_id == 2130| 
-           books$gutenberg_id == 6762| 
-           books$gutenberg_id==1232|
-           books$gutenberg_id== 20433|
-           books$gutenberg_id==39622| 
-           books$gutenberg_id==34111| 
-           books$gutenberg_id==15509) %>%  
-  mutate(art = books$gutenberg_id == 34645| books$gutenberg_id == 2176|books$gutenberg_id ==5000| 
-           books$gutenberg_id ==11242| books$gutenberg_id ==17408| books$gutenberg_id == 38532| 
-           books$gutenberg_id == 45504| books$gutenberg_id == 29904| books$gutenberg_id == 2398| 
-           books$gutenberg_id == 17373| books$gutenberg_id== 167| books$gutenberg_id== 20195| books$gutenberg_id== 3226|
-           books$gutenberg_id== 5321| books$gutenberg_id== 3751| books$gutenberg_id== 5712| books$gutenberg_id== 13119|
-           books$gutenberg_id== 16180| books$gutenberg_id== 17244|books$gutenberg_id==22564) %>% 
-  mutate(biology = books$gutenberg_id == 1909| books$gutenberg_id == 2089|books$gutenberg_id ==2927| 
-           books$gutenberg_id ==20818| books$gutenberg_id ==18911| books$gutenberg_id == 6329| 
-           books$gutenberg_id == 14473| books$gutenberg_id == 27778| books$gutenberg_id == 2009| 
-           books$gutenberg_id == 4962| books$gutenberg_id== 17966| books$gutenberg_id== 6052| books$gutenberg_id== 13249|
-           books$gutenberg_id== 23755| books$gutenberg_id== 18350| books$gutenberg_id== 22764| books$gutenberg_id== 2938|
-           books$gutenberg_id== 16410| books$gutenberg_id== 18884|books$gutenberg_id==24456) %>%  
-  mutate(cookery = books$gutenberg_id == 10011| books$gutenberg_id == 24384|books$gutenberg_id ==13265| 
-           books$gutenberg_id ==25631| books$gutenberg_id ==15019| books$gutenberg_id == 26032| 
-           books$gutenberg_id == 12815| books$gutenberg_id == 24205| books$gutenberg_id == 33974| 
-           books$gutenberg_id == 29730| books$gutenberg_id== 24542| books$gutenberg_id== 25007| books$gutenberg_id== 31534|
-           books$gutenberg_id== 27245| books$gutenberg_id== 6978| books$gutenberg_id== 6429| books$gutenberg_id== 26558|
-           books$gutenberg_id== 29329| books$gutenberg_id== 6385|books$gutenberg_id==34822)-> books 
 
-books %>%  
-  filter(politics == TRUE) -> books_politics 
-books %>%  
-  filter(art == TRUE) -> books_art 
-books %>%  
-  filter(biology == TRUE) -> books_biology 
-books %>%  
-  filter(cookery == TRUE) -> books_cookery
-books %>% 
-  filter(politics == FALSE & art == FALSE & biology == FALSE & cookery == FALSE) -> books_travel
+# Vector of gutenberg_id values for each category
+politics_ids <- c(5669, 147, 17306, 4776, 3207, 20125, 35894, 9596, 1341, 151, 7370, 612, 18, 2130, 6762, 1232, 20433, 39622, 34111, 15509)
+art_ids <- c(34645, 2176, 5000, 11242, 17408, 38532, 45504, 29904, 2398, 17373, 167, 20195, 3226, 5321, 3751, 5712, 13119, 16180, 17244, 22564)
+biology_ids <- c(1909, 2089, 2927, 20818, 18911, 6329, 14473, 27778, 2009, 4962, 17966, 6052, 13249, 23755, 18350, 22764, 2938, 16410, 18884, 24456)
+cookery_ids <- c(10011, 24384, 13265, 25631, 15019, 26032, 12815, 24205, 33974, 29730, 24542, 25007, 31534, 27245, 6978, 6429, 26558, 29329, 6385, 34822)
 
-books_politics %>%  
-  rbind(books_art) %>%  
-  rbind(books_biology) %>%  
-  rbind(books_cookery) %>%  
-  rbind(books_travel) -> logical_full_books
+# Mutate columns based on gutenberg_id values
+books <- books %>%
+  mutate(politics = gutenberg_id %in% politics_ids,
+         art = gutenberg_id %in% art_ids,
+         biology = gutenberg_id %in% biology_ids,
+         cookery = gutenberg_id %in% cookery_ids)
+
+# Mutate columns based on gutenberg_id values
+logical_full_books <- books %>%
+  mutate(category = case_when(
+    gutenberg_id %in% politics_ids ~ "politics",
+    gutenberg_id %in% art_ids ~ "art",
+    gutenberg_id %in% biology_ids ~ "biology",
+    gutenberg_id %in% cookery_ids ~ "cookery",
+    TRUE ~ "travel"
+  )) %>%
+  select(-politics, -art, -biology, -cookery)
 
 # Convert this text to a corpus: 
 # Make a vector source from text (Convert vector to a Source object)
@@ -156,7 +124,6 @@ inspect(books_tdm)
 # Identify non-zero values:
 books_nonzero <- which(books_m != 0, arr.ind = TRUE)
 
-# Dowker Complex Function by Dr. Michael Robinson
 dowker_nest <- function(df,feature_vars,obs_vars){
   df %>%
     ungroup() %>%
@@ -168,17 +135,6 @@ dowker_nest <- function(df,feature_vars,obs_vars){
            feature_count=sapply(feature_pattern,function(x){nrow(x)})) %>%
     ungroup()
 } 
-
-books_nonzero %>%  
-  as_tibble() %>% 
-  ungroup() %>% 
-  select("Docs", "Terms") %>%  
-  nest(feature_pattern = "Docs") %>%  
-  group_by(feature_pattern) %>%  
-  nest(observations = "Terms") %>%  
-  mutate(weight=sapply(observations,function(x){nrow(x)}), 
-         feature_count=sapply(feature_pattern,function(x){nrow(x)})) %>%  
-  ungroup() -> test
 
 
 # Apply Dowker Complex function to books_nonzero 
@@ -286,207 +242,19 @@ books_dowker_nest %>%
   select("Word") %>%  
   unique() -> travel_words
 
-# make new column called topics in order to use it later
-logical_full_books%>%  
-  filter(politics %in% TRUE) %>%  
-  mutate(topics = "politics") -> politics_data
-logical_full_books %>%  
-  filter(art %in% TRUE) %>%  
-  mutate(topics = "art") -> art_data
-logical_full_books %>%  
-  filter(biology %in% TRUE) %>%  
-  mutate(topics = "biology") -> biology_data
-logical_full_books %>%  
-  filter(cookery %in% TRUE) %>%  
-  mutate(topics = "cookery") -> cookery_data
-logical_full_books %>%  
-  filter(politics %in% FALSE & art %in% FALSE & biology %in% FALSE & cookery %in% FALSE) %>%  
-  mutate(topics = "travel") -> travel_data
 
-# combine three data into one 
-politics_data %>%  
-  rbind(art_data) %>%  
-  rbind(biology_data) %>%  
-  rbind(cookery_data) %>% 
-  rbind(travel_data) -> complete_data
-
-###### finalize data ###### 
 books_dowker_nest %>%  
   select(c("observations", "weight", "difference", "score", "feature_count", "feature_pattern", "prob_art", "prob_politics", "prob_biology", "prob_cookery", "prob_travel")) %>%  
   unnest(feature_pattern) %>%
   left_join(complete_data %>% mutate(Docs = row_number()),
             by = c(Docs = "Docs")
   ) -> use_this_data
-#############################
-# plots 
-ggplot(use_this_data, aes(x = prob_art)) +
-  geom_histogram()
 
-ggplot(use_this_data, aes(x = prob_biology)) +
-  geom_histogram()
-
-ggplot(use_this_data, aes(x = prob_politics)) +
-  geom_histogram()
-
-ggplot(use_this_data, aes(x = prob_cookery)) +
-  geom_histogram()
-
-ggplot(use_this_data, aes(x = prob_travel)) +
-  geom_histogram()
-
-# weight vs feature count 
-ggplot(use_this_data, aes(x = weight, y = feature_count)) + 
-  geom_point() + 
-  theme_bw()
-
-# Scatterplot (score vs difference) -> see the trend, explore, outliers, what they mean??? 
-ggplot(use_this_data, aes(x = difference, y = score, color = weight, size = feature_count)) + 
-  geom_point() + 
-  theme_bw()
-
-# Scatterplot (score vs difference) 
-ggplot(use_this_data, aes(x = difference, y = score)) + 
-  geom_point() + 
-  theme_bw()
-
-# "Weight" vs "Each topic probability"
-ggplot(use_this_data, aes(y=weight, x=prob_art))+
-  geom_point()+ 
-  theme_bw()
-
-ggplot(use_this_data, aes(y=weight, x=prob_biology))+
-  geom_point()+
-  theme_bw()
-
-ggplot(use_this_data, aes(y=weight, x=prob_politics))+
-  geom_point()+
-  theme_bw()
-
-ggplot(use_this_data, aes(y=weight, x=prob_cookery))+
-  geom_point()+
-  theme_bw()
-
-ggplot(use_this_data, aes(y=weight, x=prob_travel))+
-  geom_point()+
-  theme_bw()
-
-##################
-# Boxplot (prob art VS topics)
-use_this_data %>%  
-  ggplot(aes(x = prob_art, y = as.factor(topics))) + 
-  geom_boxplot() + 
-  coord_flip()+ 
-  theme_bw() 
-
-# Boxplot (prob biology VS topics)
-use_this_data %>% 
-  ggplot(aes(x = prob_biology, y = as.factor(topics))) + 
-  geom_boxplot() + 
-  coord_flip()+
-  theme_bw()
-
-# Boxplot (prob politics VS topics)
-use_this_data %>% 
-  ggplot(aes(x = prob_politics, y = as.factor(topics))) + 
-  geom_boxplot() + 
+# BoxPlot
+use_this_data %>%
+  pivot_longer(cols = starts_with("prob"), names_to = "Probability", values_to = "Value") %>%
+  ggplot(aes(x = Value, y = as.factor(topics))) +
+  geom_boxplot() +
   coord_flip() +
-  theme_bw()
-
-# Boxplot (prob cookery VS topics)
-use_this_data %>% 
-  ggplot(aes(x = prob_cookery, y = as.factor(topics))) + 
-  geom_boxplot() + 
-  coord_flip() +
-  theme_bw()
-
-# Boxplot (prob travel VS topics)
-use_this_data %>% 
-  ggplot(aes(x = prob_travel, y = as.factor(topics))) + 
-  geom_boxplot() + 
-  coord_flip() +
-  theme_bw()
-
-
-# Interpretation: 
-# Each topic category is shifted up if y-axis is the probability of that topic. 
-# Based on these boxplots we can observe that there is a separation between art, politics, biology books. 
-# As measured by the probability of each topic, we can assume that Dowker Classifier is really separating this books.
-
-# test
-str(use_this_data)
-
-aov_test_art <- aov(prob_art ~ as.factor(topics), use_this_data)
-summary(aov_test_art)
-
-aov_test_politics <- aov(prob_politics ~ as.factor(topics), use_this_data)
-summary(aov_test_politics)
-
-aov_test_biology <- aov(prob_biology ~ as.factor(topics), use_this_data)
-summary(aov_test_biology)
-
-aov_test_cookery <- aov(prob_cookery ~ as.factor(topics), use_this_data)
-summary(aov_test_cookery)
-
-aov_test_travel <- aov(prob_travel ~ as.factor(topics), use_this_data)
-summary(aov_test_travel)
-
-
-###### tf-idf VS Dowker Probability ##### 
-use_this_data %>%  
-  unnest(observations) %>%  
-  left_join(books_nonzero %>%  
-              as_tibble(rownames = "Words")) %>%  
-  left_join(book_words,by = c(Words = "word"))  %>%  
-  ggplot(aes(x =tf_idf, y = prob_art)) + 
-  geom_point()+
-  theme_bw()
-
-#############################
-# histogram of prob of each one of these topics 
-use_this_data %>%  
-  filter(topics == "politics") %>% 
-  ggplot(aes(x = prob_art)) + 
-  geom_histogram() + 
-  theme_bw()
-
-use_this_data %>%  
-  filter(topics == "politics") %>% 
-  ggplot(aes(x = prob_biology)) + 
-  geom_histogram() + 
-  theme_bw()
-
-use_this_data %>%  
-  filter(topics == "politics") %>% 
-  ggplot(aes(x = prob_cookery)) + 
-  geom_histogram() + 
-  theme_bw()
-
-use_this_data %>%  
-  filter(topics == "politics") %>% 
-  ggplot(aes(x = prob_travel)) + 
-  geom_histogram() + 
-  theme_bw()
-
-use_this_data %>%  
-  filter(topics == "art") %>% 
-  ggplot(aes(x = prob_politics)) + 
-  geom_histogram() + 
-  theme_bw()
-
-use_this_data %>%  
-  filter(topics == "art") %>% 
-  ggplot(aes(x = prob_biology)) + 
-  geom_histogram() + 
-  theme_bw()
-
-use_this_data %>%  
-  filter(topics == "art") %>% 
-  ggplot(aes(x = prob_cookery)) + 
-  geom_histogram() + 
-  theme_bw()
-
-use_this_data %>%  
-  filter(topics == "art") %>% 
-  ggplot(aes(x = prob_travel)) + 
-  geom_histogram() + 
-  theme_bw()
+  theme_bw() +
+  facet_wrap(~ Probability, scales = "free_x", ncol = 1)
