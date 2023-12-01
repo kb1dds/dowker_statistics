@@ -28,6 +28,28 @@ gutenberg_15books <- gutenberg_download(c(id_topics$gutenberg_id), mirror = "htt
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+# tf-idf analysis
+book_words <- gutenberg_15books %>%  
+  unnest_tokens(word, text) %>%  
+  count(gutenberg_id, word, sort = TRUE) %>%  
+  ungroup()
+
+total_words <- book_words %>%  
+  group_by(gutenberg_id) %>%  
+  summarize(total = sum(n))
+
+# create new stop word list using tf_idf 
+left_join(book_words, total_words) %>%  
+  bind_tf_idf(word, gutenberg_id, n) -> book_words
+
+book_words%>%  
+  filter(tf_idf < 0.001) %>%  
+  select(word) %>%  
+  unique() -> stop_words_tf_idf
+
+stop_words <- removeNumbers(stop_words_tf_idf$word) # remove numbers 
+
+# 
 book_words <- left_join(gutenberg_15books, id_topics, by = "gutenberg_id") %>%  
   unnest_tokens(word, text) %>%  
   count(Topics, gutenberg_id, word, sort = TRUE) %>%  
@@ -36,20 +58,6 @@ book_words <- left_join(gutenberg_15books, id_topics, by = "gutenberg_id") %>%
 total_words <- book_words %>%  
   group_by(Topics, gutenberg_id) %>%  
   summarize(total = sum(n))
-
-## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-##
-## 3-  Create New Stop Word List using tf-idf                                                                                 ----
-##
-## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-left_join(book_words, total_words) %>%  
-  bind_tf_idf(word, gutenberg_id, n) %>%  
-  filter(tf_idf < 0.001) %>%  
-  select(word) %>%  
-  unique() -> stop_words_tf_idf
-
-stop_words <- removeNumbers(stop_words_tf_idf$word) # remove numbers 
 
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -61,62 +69,18 @@ stop_words <- removeNumbers(stop_words_tf_idf$word) # remove numbers
 left_join(gutenberg_15books, id_topics, by = "gutenberg_id") %>% 
   group_by(gutenberg_id, Topics) %>% 
   slice_sample(n=500, replace = TRUE) %>% 
-  unnest_tokens(word, text) %>%  
-  summarize(text = reduce(word, paste)) -> books
-
-## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-##
-## 5-  Convert this text to a corpus   ----
-##
-## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-## Use different way 
-
-# Make a vector source from text (Convert vector to a Source object)
-books_source <- VectorSource(books$text)
-books_corpus <- VCorpus(books_source)
-
-# Function that cleans corpus: 
-clean_corpus <- function(corpus) {
-  
-  # Remove punctuation
-  corpus <- tm_map(corpus, removePunctuation)
-  # Transform to lower case
-  corpus <- tm_map(corpus, content_transformer(tolower))
-  # Add more stopwords
-  corpus <- tm_map(corpus, removeWords, words = c(stop_words)) 
-  # Strip whitespace
-  corpus <- tm_map(corpus, stripWhitespace)
-  # Remove numbers 
-  corpus <- tm_map(corpus, removeNumbers)
-  # Add stemming 
-  corpus <- tm_map(corpus, stemDocument, language = "english")  
-  
-  return(corpus)
-}
-
-# Use clean_corpus function to the corpus: 
-clean_books_corpus <- clean_corpus(books_corpus)
+  unnest_tokens(word, text) -> test
 
 
-## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-##
-## 7-  Apply Term Document Matrix to Books corpus                                                                               ----
-##
-## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+test %>%
+  anti_join(stop_words_tf_idf, by = "word") %>%
+  unique() %>% 
+  ungroup() %>% 
+  add_count(word) %>% 
+  slice_max(n, n = 100000) %>% 
+  select(-c("n")) -> test_1
 
-books_tdm <- TermDocumentMatrix(books_corpus)
-books_m <- as.matrix(books_tdm)
-
-v3 <- sort(rowSums(books_m), decreasing=TRUE)
-d3 <- data.frame(word = names(v3), freq=v3)
-
-# Use inspect function to display detailed information on TDM
-inspect(books_tdm)
-
-# Identify non-zero values:
-books_nonzero <- which(books_m != 0, arr.ind = TRUE)
-
+# antijoin, tidytext stop words 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ##
 ## 8-  Dowker Complex Nest Function by Dr. Michael Robinson                                                                           ----
@@ -137,14 +101,12 @@ dowker_nest <- function(df,feature_vars,obs_vars){
 } 
 
 #### Join the topics to the books_nonzero data
+test_1 %>%  
+  rename(Docs = gutenberg_id, 
+         Terms = word) -> test_2
 
-# Apply Dowker Complex function to books_nonzero 
-books_nonzero %>%
-  as_tibble() %>%
-  dowker_nest(Docs, Terms) -> books_dowker_nest
+dowker_nest(, Terms, c(Docs, Topics)) -> books_dowker_nest
 
-### change later
-# dowker_nest(books_nonzero,c(Docs, Topics), Terms) -> books_dowker_nest
 
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ##
@@ -336,8 +298,4 @@ dowker_prob <- function(df,class_var){
 }
 
 dowker_prob(books_dowker_nest, Topics) -> dowker_prob_result
-
-# dowker_graph in dowker split
-
-
 
