@@ -54,7 +54,7 @@ art_ids <- c(34645, 2176, 5000, 11242, 17408, 38532, 45504, 29904, 2398, 17373, 
 biology_ids <- c(1909, 2089, 2927, 20818, 18911, 6329, 14473, 27778, 2009, 4962, 17966, 6052, 13249, 23755, 18350, 22764, 2938, 16410, 18884, 24456)
 cookery_ids <- c(10011, 24384, 13265, 25631, 15019, 26032, 12815, 24205, 33974, 29730, 24542, 25007, 31534, 27245, 6978, 6429, 26558, 29329, 6385, 34822)
 
-# Mutate columns based on gutenberg_id values
+# Mutate columns based on gutenberg_id value
 books <- books %>%
   mutate(politics = gutenberg_id %in% politics_ids,
          art = gutenberg_id %in% art_ids,
@@ -202,6 +202,47 @@ biology_words <- get_category_words(books_dowker_nest, 0.9, prob_biology, books_
 politics_words <- get_category_words(books_dowker_nest, 0.9, prob_politics, books_nonzero)
 cooker_words <- get_category_words(books_dowker_nest, 0.9, prob_cookery, books_nonzero)
 travel_words <- get_category_words(books_dowker_nest, 0.9, prob_travel, books_nonzero)
+
+
+books %>%  
+  filter(politics == TRUE) -> books_politics 
+books %>%  
+  filter(art == TRUE) -> books_art 
+books %>%  
+  filter(biology == TRUE) -> books_biology 
+books %>%  
+  filter(cookery == TRUE) -> books_cookery
+books %>% 
+  filter(politics == FALSE & art == FALSE & biology == FALSE & cookery == FALSE) -> books_travel
+
+books_politics %>%  
+  rbind(books_art) %>%  
+  rbind(books_biology) %>%  
+  rbind(books_cookery) %>%  
+  rbind(books_travel) -> logical_full_books
+
+logical_full_books%>%  
+  filter(politics %in% TRUE) %>%  
+  mutate(topics = "politics") -> politics_data
+logical_full_books %>%  
+  filter(art %in% TRUE) %>%  
+  mutate(topics = "art") -> art_data
+logical_full_books %>%  
+  filter(biology %in% TRUE) %>%  
+  mutate(topics = "biology") -> biology_data
+logical_full_books %>%  
+  filter(cookery %in% TRUE) %>%  
+  mutate(topics = "cookery") -> cookery_data
+logical_full_books %>%  
+  filter(politics %in% FALSE & art %in% FALSE & biology %in% FALSE & cookery %in% FALSE) %>%  
+  mutate(topics = "travel") -> travel_data
+
+# combine three data into one 
+politics_data %>%  
+  rbind(art_data) %>%  
+  rbind(biology_data) %>%  
+  rbind(cookery_data) %>% 
+  rbind(travel_data) -> complete_data
 
 books_dowker_nest %>%  
   select(c("observations", "weight", "difference", "score", "feature_count", "feature_pattern", "prob_art", "prob_politics", "prob_biology", "prob_cookery", "prob_travel")) %>%  
