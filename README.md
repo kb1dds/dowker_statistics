@@ -36,5 +36,6 @@ Tool: `max_decreasing_decomp`
 
 # Example use cases
 
-* CSV file dialects
-* NITF file dialects
+* CSV file dialects [https://dra.american.edu/islandora/object/auislandora%3A97871]
+* NITF file dialects [https://doi.org/10.1109/SPW59333.2023.00019] and [https://arxiv.org/abs/2304.09082]
+* PDF files [https://doi.org/10.1109/SPW54247.2022.9833862] and [https://arxiv.org/abs/2201.08267]
